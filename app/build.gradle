@@ -1,0 +1,83 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp' version "1.7.21-1.0.8"
+}
+
+android {
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.example.studentapp"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    // важная характеристика, которая должна совпадать с compose_ui_version
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.1.1'
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    namespace 'com.example.studentapp'
+}
+
+dependencies {
+    // must have во всех проектах
+    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation "androidx.compose.material:material:$compose_material_version"
+    implementation "androidx.compose.ui:ui:$compose_ui_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.4"
+
+    // отвечает за цвет system bar
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.21.5-rc"
+
+    // блок, отвечающий за навигацию
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    // ответчает за NavigationBar и NavigationItem (единственный элемент дизайна material3)
+    implementation "androidx.compose.material3:material3:$material3_version"
+
+    // отвечает за HorizontalPager
+    implementation "com.google.accompanist:accompanist-pager:0.23.1"
+
+    // отвечает за иконки
+    implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
+}
