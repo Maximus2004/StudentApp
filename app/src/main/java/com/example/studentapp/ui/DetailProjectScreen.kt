@@ -23,13 +23,13 @@ import com.example.studentapp.R
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import com.example.studentapp.data.PageType
-import com.example.studentapp.data.feedbacks
-import com.example.studentapp.data.navigationItemContentList
+import com.example.studentapp.data.*
 import com.example.studentapp.ui.navigation.NavigationDestination
 
 object DetailProjectScreen : NavigationDestination {
     override val route: String = "DetailProjectScreen"
+    const val projectId = "projectId"
+    val routeWithArgs: String = "${route}/{$projectId}"
 
 }
 
@@ -37,7 +37,8 @@ object DetailProjectScreen : NavigationDestination {
 @Composable
 fun DetailProjectScreen(
     onNavigateBack: () -> Unit,
-    contentPadding: PaddingValues = PaddingValues()
+    contentPadding: PaddingValues = PaddingValues(),
+    project: Project
 ) {
     val state = rememberPagerState()
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -76,12 +77,12 @@ fun DetailProjectScreen(
                             modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
                         )
                         Text(
-                            text = "Android-приложение для организации мероприятий",
+                            text = project.name,
                             style = MaterialTheme.typography.h3,
                             modifier = Modifier.padding(start = 25.dp, top = 4.dp, end = 24.dp)
                         )
                         Text(
-                            text = "В данном проекте я занимался разработкой UI/UX части web приложения. Вы можете посмотреть часть работы, на которую я был отвественен в “карусели” сверху или перейти по ссылке: portfolio...",
+                            text = project.description,
                             style = MaterialTheme.typography.h4,
                             modifier = Modifier.padding(start = 24.dp, top = 16.dp, end = 24.dp),
                             lineHeight = 27.sp
@@ -187,13 +188,6 @@ fun DotsIndicator(
 @Composable
 fun DetailScreenPreview() {
     StudentAppTheme {
-        DetailProjectScreen(onNavigateBack = {})
+        DetailProjectScreen(onNavigateBack = {}, project = projects[0])
     }
 }
-
-data class FeedbackInfo(
-    val name: String,
-    val text: String,
-    val rate: Double,
-    val role: Boolean
-)

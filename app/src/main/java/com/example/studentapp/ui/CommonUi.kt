@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import com.example.studentapp.R
 import com.example.studentapp.data.NavigationItemContent
 import com.example.studentapp.data.PageType
+import com.example.studentapp.data.Team
+import com.example.studentapp.data.User
 import com.example.studentapp.ui.theme.Red
 
 @Composable
@@ -49,9 +51,9 @@ fun TopBar(
 }
 
 @Composable
-fun MemberCard(member: Member, onProfileClick: () -> Unit) {
-    val role = if (member.role) "Руководитель" else "Участник"
-    val color = if (member.role) Color(0xFFFFFFFF) else MaterialTheme.colors.background
+fun MemberCard(member: Pair<Int, Boolean>, onProfileClick: () -> Unit, user: User) {
+    val role = if (member.second) "Руководитель" else "Участник"
+    val color = if (member.second) Color(0xFFFFFFFF) else MaterialTheme.colors.background
     Row(
         modifier = Modifier
             .background(color)
@@ -61,14 +63,14 @@ fun MemberCard(member: Member, onProfileClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(id = member.avatar),
+            painter = painterResource(id = user.avatar),
             contentDescription = null,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(55.dp)
         )
         Column() {
-            Text(text = member.name, style = MaterialTheme.typography.h5)
+            Text(text = user.name, style = MaterialTheme.typography.h5)
             Text(text = role, style = MaterialTheme.typography.subtitle2)
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -183,5 +185,34 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit)
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ProjectCard(name: String, onClickProject: () -> Unit, isLeader: Boolean = false) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clickable { onClickProject() },
+        shape = RoundedCornerShape(8.dp),
+        elevation = 8.dp
+    ) {
+        Column(modifier = Modifier.padding(25.dp)) {
+            Text(
+                text = name,
+                style = TextStyle( // h5
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp,
+                    color = Color(0xFF120E21)
+                ),
+                modifier = Modifier.padding(bottom = 9.dp)
+            )
+            Text(
+                text = if (isLeader) "Руководитель" else "Участник",
+                style = MaterialTheme.typography.h4
+            )
+        }
+
     }
 }

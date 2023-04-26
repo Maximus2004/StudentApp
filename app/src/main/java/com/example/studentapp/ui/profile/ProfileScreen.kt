@@ -1,9 +1,7 @@
-package com.example.studentapp.ui
+package com.example.studentapp.ui.profile
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -29,7 +27,10 @@ object ProfileScreen : NavigationDestination {
 }
 
 @Composable
-fun ProfileScreen(onClickShowProjects: () -> Unit, contentPadding: PaddingValues = PaddingValues()) {
+fun ProfileScreen(
+    onClickShowProjects: () -> Unit,
+    contentPadding: PaddingValues = PaddingValues()
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 140.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -52,10 +53,18 @@ fun ProfileScreen(onClickShowProjects: () -> Unit, contentPadding: PaddingValues
                 Text(text = "Описание", style = MaterialTheme.typography.h5)
                 Text(
                     text = "Привет, меня зовут Дастин, я из Дублина. Опыт работы в районе 4 лет. Буду рад сотрудничесту с вами, всегда вовремя выполняю работу, очень отвественный и вообще я молодец",
-                    style = MaterialTheme.typography.h4,
+                    style = TextStyle(
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 16.sp,
+                        color = Color(0xFF99879D),
+                        lineHeight = 23.sp
+                    ),
                     modifier = Modifier.padding(top = 12.dp)
                 )
-                InfoCard(modifier = Modifier.padding(top = 11.dp), onClickShowProjects = onClickShowProjects)
+                InfoCard(
+                    modifier = Modifier.padding(top = 19.dp),
+                    onClickShowProjects = onClickShowProjects
+                )
                 Text(text = "Портфолио", style = MaterialTheme.typography.h5)
             }
         }

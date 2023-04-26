@@ -1,6 +1,7 @@
 package com.example.studentapp.ui.navigation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -8,19 +9,26 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.studentapp.LoginScreen
-import com.example.studentapp.data.PageType
-import com.example.studentapp.data.teams
+import androidx.navigation.navArgument
+import com.example.studentapp.data.User
 import com.example.studentapp.ui.*
-import com.example.studentapp.ui.home.HomeScreen
-import com.example.studentapp.ui.home.HomeViewModel
+import com.example.studentapp.ui.home.TAG
+import com.example.studentapp.ui.profile.ProfileScreen
+import com.example.studentapp.ui.profile.ProfileUiState
+import com.example.studentapp.ui.profile.ProfileViewModel
 
 @Composable
-fun NavGraphProfile(navState: MutableState<Bundle>, contentPadding: PaddingValues) {
+fun NavGraphProfile(
+    profileViewModel: ProfileViewModel = viewModel(factory = ViewModelProvider.Factory),
+    navState: MutableState<Bundle>,
+    contentPadding: PaddingValues,
+    userId: Int
+) {
+    val profileUiState = profileViewModel.uiState.collectAsState().value
     val navController = rememberNavController()
     navController.addOnDestinationChangedListener { navControll, _, _ ->
         navState.value = navControll.saveState() ?: Bundle()
@@ -31,29 +39,85 @@ fun NavGraphProfile(navState: MutableState<Bundle>, contentPadding: PaddingValue
         startDestination = ProfileScreen.route,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(route = ActiveProjectScreen.route) {
+        composable(
+            route = ActiveProjectScreen.routeWithArgs,
+            arguments = listOf(navArgument(name = ActiveProjectScreen.projectId) {
+                type = NavType.IntType
+            })
+        ) { backStackEntry ->
             ActiveProjectScreen(
-                onReplyButton = { navController.navigate(ReplyScreen.route) },
-                onClickProfile = { navController.navigate(AlienScreen.route) },
-                onNavigateBack = { navController.navigateUp() }
+                project = profileViewModel.getProjectById(
+                    backStackEntry.arguments?.getInt(ActiveProjectScreen.projectId)
+                        ?: error("projectId cannot be null")
+                ),
+                getUserById = { profileViewModel.getUserById(it) },
+                contentPadding = contentPadding,
+                onNavigateBack = { navController.navigateUp() },
             )
         }
-        composable(route = DetailProjectScreen.route) {
+        composable(
+            route = DetailProjectScreen.routeWithArgs,
+            arguments = listOf(navArgument(name = DetailProjectScreen.projectId) {
+                type = NavType.IntType
+            })
+        ) { backStackEntry ->
             DetailProjectScreen(
+                project = profileViewModel.getProjectById(
+                    backStackEntry.arguments?.getInt(DetailProjectScreen.projectId)
+                        ?: error("projectId cannot be null")
+                ),
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding
             )
         }
         composable(route = ProfileScreen.route) {
             ProfileScreen(
-                onClickShowProjects = { navController.navigate(DifferentProjects.route) },
+                onClickShowProjects = {
+                    profileViewModel.fillProjects(userId)
+                    navController.navigate(DifferentProjects.route)
+                },
                 contentPadding = contentPadding
             )
         }
         composable(route = DifferentProjects.route) {
-            DifferentProjects(
+            DifferentProjectsScreen(
                 onNavigateBack = { navController.navigateUp() },
-                onClickProject = { navController.navigate(DetailProjectScreen.route) }
+                onClickActiveLeaderProject = { navController.navigate("${MyActiveProjectScreen.route}/${it}") },
+                onClickActiveSubordinateProject = { navController.navigate("${ActiveProjectScreen.route}/${it}") },
+                onClickNotActiveProject = { navController.navigate("${DetailProjectScreen.route}/${it}") },
+                leaderProjects = profileUiState.leaderProjects,
+                subordinateProjects = profileUiState.subordinateProjects
+            )
+        }
+        composable(
+            route = MyActiveProjectScreen.routeWithArgs,
+            arguments = listOf(navArgument(name = MyActiveProjectScreen.projectId) {
+                type = NavType.IntType
+            })
+        ) { backStackEntry ->
+            MyActiveProjectScreen(
+                project = profileViewModel.getProjectById(
+                    backStackEntry.arguments?.getInt(MyActiveProjectScreen.projectId)
+                        ?: error("projectId cannot be null")
+                ),
+                getUserById = { profileViewModel.getUserById(it) },
+                onNavigateBack = { navController.navigateUp() },
+                contentPadding = contentPadding,
+                onCollectPeople = { navController.navigate(SearchTeammateScreen.route) },
+                onEndProject = { navController.navigate(EndScreen.route) }
+            )
+        }
+        composable(route = SearchTeammateScreen.route) {
+            SearchTeammateScreen(
+                onCreateTeammate = { navController.navigate(ProfileScreen.route) },
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+        composable(route = EndScreen.route) {
+            EndScreen(
+                onClickEnd = { navController.navigate(ProfileScreen.route) },
+                onNavigateBack = { navController.navigateUp() },
+                contentPadding = contentPadding
             )
         }
     }

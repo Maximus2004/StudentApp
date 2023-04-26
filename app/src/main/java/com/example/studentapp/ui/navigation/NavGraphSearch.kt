@@ -5,19 +5,19 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.studentapp.LoginScreen
-import com.example.studentapp.data.PageType
+import com.example.studentapp.data.User
+import com.example.studentapp.data.projects
 import com.example.studentapp.data.teams
+import com.example.studentapp.data.users
 import com.example.studentapp.ui.*
-import com.example.studentapp.ui.home.HomeScreen
-import com.example.studentapp.ui.home.HomeViewModel
+
+fun tempFun(userId: Int): User {
+    return users[userId]
+}
 
 @Composable
 fun NavGraphSearch(navState: MutableState<Bundle>, contentPadding: PaddingValues) {
@@ -35,11 +35,26 @@ fun NavGraphSearch(navState: MutableState<Bundle>, contentPadding: PaddingValues
             SearchScreen(
                 onItemClick = { navController.navigate(DetailTeammateScreen.route) },
                 contentPadding = contentPadding,
-                onClickCreateTeam = { navController.navigate(ProjectCreationScreen.route) }
+                onClickCreateTeam = { navController.navigate(ChooseProjectScreen.route) }
+            )
+        }
+        composable(route = ChooseProjectScreen.route) {
+            ChooseProjectScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onClickProject = { navController.navigate(SearchTeammateScreen.route) },
+                onCreateProject = { navController.navigate(ProjectCreationScreen.route) },
+                contentPadding = contentPadding
             )
         }
         composable(route = ProjectCreationScreen.route) {
-            ProjectCreationScreen(onCreateTeam = { navController.navigate(ActiveProjectScreen.route) })
+            ProjectCreationScreen(
+                onCreateTeam = { navController.navigate(SearchTeammateScreen.route) },
+                onNavigateBack = { navController.navigateUp() })
+        }
+        composable(route = SearchTeammateScreen.route) {
+            SearchTeammateScreen(
+                onCreateTeammate = { navController.navigate(SearchScreen.route) },
+                onNavigateBack = { navController.navigateUp() })
         }
         composable(route = DetailTeammateScreen.route) {
             DetailTeammateScreen(
@@ -52,14 +67,16 @@ fun NavGraphSearch(navState: MutableState<Bundle>, contentPadding: PaddingValues
         }
         composable(route = ActiveProjectScreen.route) {
             ActiveProjectScreen(
-                onReplyButton = { navController.navigate(ReplyScreen.route) },
-                onClickProfile = { navController.navigate(AlienScreen.route) },
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                contentPadding = contentPadding,
+                project = projects[0],
+                getUserById = { tempFun(0) },
+                onClickProfile = { navController.navigate(AlienScreen.route) }
             )
         }
         composable(route = AlienScreen.route) {
-            AlienScreen(
-                onClickShowProjects = { navController.navigate(DifferentProjects.route) },
+            AlienProfileScreen(
+                onClickShowProjects = { /*TODO*/ },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding
             )
@@ -74,14 +91,15 @@ fun NavGraphSearch(navState: MutableState<Bundle>, contentPadding: PaddingValues
         composable(route = DetailProjectScreen.route) {
             DetailProjectScreen(
                 onNavigateBack = { navController.navigateUp() },
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                project = projects[0]
             )
         }
-        composable(route = DifferentProjects.route) {
-            DifferentProjects(
-                onNavigateBack = { navController.navigateUp() },
-                onClickProject = { navController.navigate(DetailProjectScreen.route) }
-            )
-        }
+//        composable(route = DifferentProjects.route) {
+//            DifferentProjectsScreen(
+//                onNavigateBack = { navController.navigateUp() },
+//                onClickProject = { navController.navigate(DetailProjectScreen.route) }
+//            )
+//        }
     }
 }

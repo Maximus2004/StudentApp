@@ -19,10 +19,10 @@ private val LightColorPalette = lightColors(
 
 @Composable
 fun StudentAppTheme(content: @Composable () -> Unit) {
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setSystemBarsColor(color = Color(0xFFECECEC))
-    }
+//    val systemUiController = rememberSystemUiController()
+//    SideEffect {
+//        systemUiController.setSystemBarsColor(color = Color(0xFFECECEC))
+//    }
     MaterialTheme(
         colors = LightColorPalette,
         typography = Typography,

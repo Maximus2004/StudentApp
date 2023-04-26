@@ -26,9 +26,9 @@ object ProjectCreationScreen : NavigationDestination {
 }
 
 @Composable
-fun ProjectCreationScreen(onCreateTeam: () -> Unit) {
+fun ProjectCreationScreen(onCreateTeam: () -> Unit, onNavigateBack: () -> Unit) {
     Scaffold(
-        topBar = { TopBar(onNavigateBack = {}) },
+        topBar = { TopBar(onNavigateBack = { onNavigateBack() }) },
         bottomBar = {
             BottomNavigationBar(
                 currentTab = PageType.Search,
@@ -44,7 +44,7 @@ fun ProjectCreationScreen(onCreateTeam: () -> Unit) {
                         style = MaterialTheme.typography.button
                     )
                 },
-                onClick = { /*TODO*/ },
+                onClick = { onCreateTeam() },
                 backgroundColor = Color(0xFF9378FF),
                 modifier = Modifier
                     .height(54.dp)
@@ -118,6 +118,6 @@ fun ProjectCreationScreen(onCreateTeam: () -> Unit) {
 @Composable
 fun ProjectCreationPreview() {
     StudentAppTheme {
-        ProjectCreationScreen(onCreateTeam = {})
+        ProjectCreationScreen(onCreateTeam = {}, onNavigateBack = {})
     }
 }

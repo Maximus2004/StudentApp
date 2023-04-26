@@ -17,13 +17,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
+import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 
+object SearchTeammateScreen : NavigationDestination {
+    override val route: String = "SearchTeammate"
+}
+
 @Composable
-fun SearchTeammateScreen(onCreateTeammate: () -> Unit) {
+fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Unit) {
     Scaffold(
-        topBar = { TopBar(onNavigateBack = {}) },
+        topBar = { TopBar(onNavigateBack = { onNavigateBack() }) },
         bottomBar = {
             BottomNavigationBar(
                 currentTab = PageType.Search,
@@ -39,7 +44,7 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit) {
                         style = MaterialTheme.typography.button
                     )
                 },
-                onClick = { /*TODO*/ },
+                onClick = { onCreateTeammate() },
                 backgroundColor = Color(0xFF9378FF),
                 modifier = Modifier
                     .height(54.dp)
@@ -143,6 +148,6 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit) {
 @Composable
 fun SearchTeammatePreview() {
     StudentAppTheme {
-        SearchTeammateScreen(onCreateTeammate = {})
+        SearchTeammateScreen(onCreateTeammate = {}, onNavigateBack = {})
     }
 }

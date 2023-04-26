@@ -1,8 +1,9 @@
-package com.example.studentapp
+package com.example.studentapp.ui.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -15,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
+import com.example.studentapp.R
 
 object LogoScreen : NavigationDestination {
     override val route = "LogoScreen"
@@ -48,7 +50,7 @@ fun LogoScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: () -> Unit)
                 modifier = Modifier
                     .padding(top = 257.dp)
                     .size(width = 263.dp, height = 54.dp),
-                shape = MaterialTheme.shapes.small
+                shape = RoundedCornerShape(60.dp)
             ) {
                 Text(text = "Регистрация")
             }

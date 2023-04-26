@@ -1,28 +1,31 @@
 package com.example.studentapp.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studentapp.ui.BottomNavigationBar
+import com.example.studentapp.ui.ViewModelProvider
 import com.example.studentapp.ui.message.MessageViewModel
 import com.example.studentapp.ui.message.SendMessage
 import com.example.studentapp.ui.navigation.NavGraphMessage
 import com.example.studentapp.ui.navigation.NavGraphProfile
 import com.example.studentapp.ui.navigation.NavGraphSearch
 import com.example.studentapp.ui.navigation.NavigationDestination
+import com.example.studentapp.ui.profile.ProfileViewModel
 
-object HomeScreen : NavigationDestination {
-    override val route: String = "HomeScreen"
-}
+val TAG = "QWERTY"
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel(),
-    messageViewModel: MessageViewModel = viewModel()
+    userId: Int,
+    homeViewModel: HomeViewModel = viewModel(factory = ViewModelProvider.Factory),
+    messageViewModel: MessageViewModel = viewModel(factory = ViewModelProvider.Factory)
 ) {
+    Log.i(TAG, userId.toString())
     val homeUiState = homeViewModel.uiState.collectAsState().value
     val messageUiState = messageViewModel.uiState.collectAsState().value
     val navStateSearch = remember { mutableStateOf(Bundle()) }
@@ -43,7 +46,8 @@ fun HomeScreen(
         when (homeUiState.currentPage) {
             PageType.Profile -> NavGraphProfile(
                 navState = navStateProfile,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                userId = userId
             )
             PageType.Search -> NavGraphSearch(
                 navState = navStateSearch,

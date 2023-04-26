@@ -1,10 +1,7 @@
-package com.example.studentapp
+package com.example.studentapp.ui.profile
 
-import android.gesture.GestureOverlayView.OnGesturePerformedListener
 import androidx.compose.foundation.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -16,14 +13,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.studentapp.R
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
 
@@ -32,7 +25,7 @@ object LoginScreen : NavigationDestination {
 }
 
 @Composable
-fun LoginScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: () -> Unit) {
+fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_bubbles),
@@ -80,7 +73,7 @@ fun LoginScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: () -> Unit
                     TextInput(
                         "Пароль",
                         keyboardActions = KeyboardActions(onDone = {
-                            onClickAuthButton()
+                            onClickAuthButton(0)
                         }),
                         focusRequester = focusRequester2,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -98,11 +91,11 @@ fun LoginScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: () -> Unit
                 )
             }
             Button(
-                onClick = { onClickAuthButton() },
+                onClick = { onClickAuthButton(0) },
                 modifier = Modifier
                     .padding(top = 20.dp, bottom = 113.dp)
                     .size(width = 263.dp, height = 54.dp),
-                shape = MaterialTheme.shapes.small
+                shape = RoundedCornerShape(60.dp)
             ) {
                 Text(text = "Войти")
             }

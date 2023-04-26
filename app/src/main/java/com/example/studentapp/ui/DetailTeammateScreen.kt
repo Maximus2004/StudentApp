@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studentapp.data.PageType
+import com.example.studentapp.data.Team
 import com.example.studentapp.data.navigationItemContentList
 import com.example.studentapp.data.teams
 import com.example.studentapp.ui.navigation.NavigationDestination

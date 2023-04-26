@@ -175,33 +175,6 @@ fun SearchField(onClickSearchButton: () -> Unit) {
     }
 }
 
-// оставим это на потом
-@Composable
-fun ExtendableFloatingActionButton(
-    modifier: Modifier = Modifier,
-    extended: Boolean,
-    onClick: () -> Unit = {}
-) {
-    Column() {
-        AnimatedVisibility(visible = extended) {
-            Spacer(modifier = Modifier.height(93.dp))
-        }
-        ExtendedFloatingActionButton(
-            text = {
-                Text(
-                    text = "Создать команду",
-                    style = MaterialTheme.typography.button
-                )
-            },
-            onClick = { /*TODO*/ },
-            backgroundColor = Color(0xFF9378FF),
-            modifier = Modifier
-                .height(54.dp)
-                .width(263.dp)
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun SearchScreenPreview() {
@@ -209,8 +182,3 @@ fun SearchScreenPreview() {
         SearchScreen(onItemClick = {}, onClickCreateTeam = {})
     }
 }
-
-data class Team(
-    val name: String,
-    val description: String
-)

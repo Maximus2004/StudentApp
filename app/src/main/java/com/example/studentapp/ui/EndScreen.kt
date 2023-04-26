@@ -19,71 +19,77 @@ import androidx.compose.ui.unit.sp
 import com.example.studentapp.R
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
+import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 
+object EndScreen : NavigationDestination {
+    override val route: String = "EndScreen"
+}
+
 @Composable
-fun EndScreen() {
-    Scaffold(
-        topBar = { TopBar(onNavigateBack = {}) },
-        bottomBar = {
-            BottomNavigationBar(
-                currentTab = PageType.Search,
-                onTabPressed = { },
-                navigationItemContentList = navigationItemContentList
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(
-                        text = "Завершить проект",
-                        style = MaterialTheme.typography.button
-                    )
-                },
-                onClick = { /*TODO*/ },
-                backgroundColor = Color(0xFF9378FF),
-                modifier = Modifier
-                    .height(54.dp)
-                    .width(263.dp)
-            )
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            contentPadding = PaddingValues(top = 10.dp)
-        ) {
-            items(listOf("Алексей Некифоров", "Роман Новиков")) { name ->
-                FeedbackCard(name = name)
-            }
-            item {
-                Button(
-                    onClick = { /*TODO*/ },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFFF2F2F2),
-                        contentColor = Color(0xFF595959)
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 13.dp, end = 13.dp, bottom = 25.dp)
-                ) {
-                    Row(modifier = Modifier.padding(vertical = 10.dp)) {
-                        Text(
-                            text = "Загрузите фото",
-                            style = MaterialTheme.typography.subtitle1
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Image(
-                            painter = painterResource(id = R.drawable.upload_icon),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(17.dp)
-                                .padding(top = 4.dp)
-                        )
+fun EndScreen(
+    onClickEnd: () -> Unit = {},
+    onNavigateBack: () -> Unit = {},
+    contentPadding: PaddingValues = PaddingValues()
+) {
+    Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
+        Box() {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                contentPadding = PaddingValues(top = 15.dp, bottom = contentPadding.calculateBottomPadding() + 75.dp)
+            ) {
+                items(listOf("Алексей Некифоров", "Роман Новиков")) { name ->
+                    FeedbackCard(name = name)
+                }
+                item {
+                    Button(
+                        onClick = { /*TODO*/ },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color(0xFFF2F2F2),
+                            contentColor = Color(0xFF595959)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 13.dp, end = 13.dp, bottom = 25.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(vertical = 10.dp)) {
+                            Text(
+                                text = "Загрузите фото",
+                                style = MaterialTheme.typography.subtitle1
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Image(
+                                painter = painterResource(id = R.drawable.upload_icon),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(17.dp)
+                                    .padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
+            }
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom
+            ) {
+                ExtendedFloatingActionButton(
+                    text = {
+                        Text(
+                            text = "Завершить проект",
+                            style = MaterialTheme.typography.button
+                        )
+                    },
+                    onClick = { onClickEnd() },
+                    backgroundColor = Color(0xFF9378FF),
+                    modifier = Modifier
+                        .padding(bottom = contentPadding.calculateBottomPadding() + 15.dp)
+                        .height(54.dp)
+                        .width(263.dp)
+                )
             }
         }
     }
@@ -139,7 +145,7 @@ fun FeedbackCard(name: String) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun EndScreenPreview() {
     StudentAppTheme {
