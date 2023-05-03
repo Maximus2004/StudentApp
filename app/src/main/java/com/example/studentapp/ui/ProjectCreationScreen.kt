@@ -69,16 +69,7 @@ fun ProjectCreationScreen(onCreateTeam: () -> Unit, onNavigateBack: () -> Unit) 
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onSearch = { onCreateTeam() }),
-                label = {
-                    Text(
-                        text = "Введите название проекта", style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            color = Color(0xFF595959),
-                            fontFamily = Red
-                        )
-                    )
-                },
+                label = { Text(text = "Введите название проекта") },
                 modifier = Modifier.padding(18.dp).height(56.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -94,16 +85,7 @@ fun ProjectCreationScreen(onCreateTeam: () -> Unit, onNavigateBack: () -> Unit) 
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onSearch = { onCreateTeam() }),
-                label = {
-                    Text(
-                        text = "Опишите своё будущее детище", style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            color = Color(0xFF595959),
-                            fontFamily = Red
-                        )
-                    )
-                },
+                label = { Text(text = "Опишите своё будущее детище") },
                 modifier = Modifier
                     .height(160.dp)
                     .fillMaxWidth()

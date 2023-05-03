@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.studentapp.data.Project
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
@@ -28,6 +29,7 @@ fun ChooseProjectScreen(
     onNavigateBack: () -> Unit,
     onClickProject: () -> Unit,
     onCreateProject: () -> Unit,
+    leaderProjects: List<Project>,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -49,14 +51,14 @@ fun ChooseProjectScreen(
                         )
                     }
                 }
-                items(
-                    listOf(
-                        "Android-приложение для ориганизации мероприятий",
-                        "Android-приложение для кофейни Stars Coffee",
-                        "Сайт, хранящий коды различных цветов"
-                    )
-                ) { name ->
-                    ProjectCard(name = name, onClickProject = onClickProject)
+                items(leaderProjects) { project ->
+                    if (project.isActive)
+                        ProjectCard(
+                            name = project.name,
+                            onClickProject = onClickProject,
+                            isActive = true,
+                            isLeader = true
+                        )
                 }
             }
             Column(
@@ -80,13 +82,5 @@ fun ChooseProjectScreen(
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ChooseProjectPreview() {
-    StudentAppTheme {
-        ChooseProjectScreen(onCreateProject = {}, onNavigateBack = {}, onClickProject = {})
     }
 }

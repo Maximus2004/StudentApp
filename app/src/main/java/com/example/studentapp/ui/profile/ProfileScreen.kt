@@ -3,6 +3,7 @@ package com.example.studentapp.ui.profile
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +20,11 @@ import com.example.studentapp.data.photos
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.material.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.studentapp.data.User
+import com.example.studentapp.data.users
 import com.example.studentapp.ui.navigation.NavigationDestination
 
 object ProfileScreen : NavigationDestination {
@@ -29,47 +34,74 @@ object ProfileScreen : NavigationDestination {
 @Composable
 fun ProfileScreen(
     onClickShowProjects: () -> Unit,
-    contentPadding: PaddingValues = PaddingValues()
+    onClickCreateTeam: () -> Unit,
+    user: User,
+    textLastProject: String,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 140.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(horizontal = 18.dp),
-        contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 9.dp)
-    ) {
-        header {
-            Column() {
-                Text(
-                    text = "Профиль",
-                    style = MaterialTheme.typography.overline,
-                    modifier = Modifier.padding(top = 56.dp)
-                )
-                UserCard(
-                    name = "Головач Лена",
-                    position = "Дизайнер",
-                    modifier = Modifier.padding(vertical = 25.dp)
-                )
-                Text(text = "Описание", style = MaterialTheme.typography.h5)
-                Text(
-                    text = "Привет, меня зовут Дастин, я из Дублина. Опыт работы в районе 4 лет. Буду рад сотрудничесту с вами, всегда вовремя выполняю работу, очень отвественный и вообще я молодец",
-                    style = TextStyle(
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color(0xFF99879D),
-                        lineHeight = 23.sp
-                    ),
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-                InfoCard(
-                    modifier = Modifier.padding(top = 19.dp),
-                    onClickShowProjects = onClickShowProjects
-                )
-                Text(text = "Портфолио", style = MaterialTheme.typography.h5)
+    Box() {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 140.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 18.dp),
+            contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 77.dp)
+        ) {
+            header {
+                Column() {
+                    Text(
+                        text = "Профиль",
+                        style = MaterialTheme.typography.overline,
+                        modifier = Modifier.padding(top = 56.dp)
+                    )
+                    UserCard(
+                        name = user.name + " " + user.surname,
+                        modifier = Modifier.padding(vertical = 25.dp),
+                        avatar = user.avatar
+                    )
+                    Text(text = "Описание", style = MaterialTheme.typography.h5)
+                    Text(
+                        text = user.description,
+                        style = TextStyle(
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp,
+                            color = Color(0xFF99879D),
+                            lineHeight = 23.sp
+                        ),
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    InfoCard(
+                        modifier = Modifier.padding(top = 19.dp),
+                        onClickShowProjects = onClickShowProjects,
+                        numberOfProjects = user.leaderProjects.size + user.subordinateProjects.size,
+                        textLastProject = textLastProject
+                    )
+                    Text(text = "Портфолио", style = MaterialTheme.typography.h5)
+                }
+            }
+            items(photos) { photo ->
+                PhotoItem(photo, modifier = Modifier.aspectRatio(1.5f))
             }
         }
-        items(photos) { photo ->
-            PhotoItem(photo, modifier = Modifier.aspectRatio(1.5f))
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            ExtendedFloatingActionButton(
+                text = {
+                    Text(
+                        text = "Создать вакансию",
+                        style = MaterialTheme.typography.button
+                    )
+                },
+                onClick = { onClickCreateTeam() },
+                backgroundColor = Color(0xFF9378FF),
+                modifier = Modifier
+                    .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())
+                    .height(54.dp)
+                    .width(263.dp),
+            )
         }
     }
 }
@@ -94,15 +126,15 @@ fun PhotoItem(photo: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun InfoCard(modifier: Modifier = Modifier, onClickShowProjects: () -> Unit) {
+fun InfoCard(modifier: Modifier = Modifier, onClickShowProjects: () -> Unit, numberOfProjects: Int = 0, textLastProject: String) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        Column() {
+        Column(Modifier.weight(0.62f)) {
             Text(
-                text = "3 проекта",
+                text = "$numberOfProjects проекта",
                 style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium,
@@ -115,20 +147,23 @@ fun InfoCard(modifier: Modifier = Modifier, onClickShowProjects: () -> Unit) {
                 style = MaterialTheme.typography.subtitle2
             )
             Text(
-                text = "Android-приложение дл...",
+                text = textLastProject,
                 style = TextStyle(
                     fontWeight = FontWeight.Normal,
                     fontSize = 16.sp,
                     color = Color(0xFF120E21),
                     fontFamily = Red
-                )
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(modifier = Modifier.width(10.dp))
+        Spacer(Modifier.width(10.dp))
         Column(
             modifier = Modifier
                 .wrapContentWidth()
-                .padding(top = 5.dp),
+                .padding(top = 5.dp)
+                .weight(0.38f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -173,17 +208,14 @@ fun InfoCard(modifier: Modifier = Modifier, onClickShowProjects: () -> Unit) {
 }
 
 @Composable
-fun UserCard(modifier: Modifier = Modifier, name: String, position: String) {
-    Row(modifier = modifier) {
+fun UserCard(modifier: Modifier = Modifier, name: String, avatar: Int = R.drawable.unknown_avatar) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Image(
-            painter = painterResource(id = R.drawable.avatar),
+            painter = painterResource(id = avatar),
             contentDescription = null,
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.padding(end = 10.dp).width(64.dp).height(64.dp).clip(CircleShape)
         )
-        Column(modifier = Modifier.padding(start = 8.dp)) {
-            Text(text = name, style = MaterialTheme.typography.h3)
-            Text(text = position, style = MaterialTheme.typography.h4)
-        }
+        Text(text = name, style = MaterialTheme.typography.h3)
     }
 }
 
@@ -191,6 +223,11 @@ fun UserCard(modifier: Modifier = Modifier, name: String, position: String) {
 @Preview(showBackground = true, showSystemUi = false)
 fun ProfileScreenPreview() {
     StudentAppTheme {
-        ProfileScreen(onClickShowProjects = {})
+        ProfileScreen(
+            onClickShowProjects = {},
+            onClickCreateTeam = {},
+            user = users[0],
+            textLastProject = "Android-приложение для организаци"
+        )
     }
 }

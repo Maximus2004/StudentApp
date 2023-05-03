@@ -1,4 +1,4 @@
-package com.example.studentapp.ui
+package com.example.studentapp.ui.search
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +13,8 @@ import com.example.studentapp.data.Project
 import com.example.studentapp.data.User
 import com.example.studentapp.data.projects
 import com.example.studentapp.data.users
+import com.example.studentapp.ui.MemberCard
+import com.example.studentapp.ui.TopBar
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
 
@@ -28,7 +30,7 @@ fun ActiveProjectScreen(
     onNavigateBack: () -> Unit = {},
     project: Project,
     getUserById: (Int) -> User,
-    onClickProfile: () -> Unit = {}
+    onClickProfile: (Int) -> Unit = {}
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = contentPadding) {
@@ -57,7 +59,7 @@ fun ActiveProjectScreen(
 
             }
             items(project.members) { member ->
-                MemberCard(member = member, onProfileClick = { onClickProfile() }, user = getUserById(member.first))
+                MemberCard(member = member, onProfileClick = { onClickProfile(member.first) }, user = getUserById(member.first))
             }
         }
     }

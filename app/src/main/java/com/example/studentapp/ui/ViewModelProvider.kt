@@ -9,6 +9,7 @@ import com.example.studentapp.StudentApplication
 import com.example.studentapp.ui.home.HomeViewModel
 import com.example.studentapp.ui.message.MessageViewModel
 import com.example.studentapp.ui.profile.ProfileViewModel
+import com.example.studentapp.ui.search.SearchViewModel
 
 object ViewModelProvider {
     val Factory = viewModelFactory {
@@ -23,6 +24,9 @@ object ViewModelProvider {
         }
         initializer {
             ProfileViewModel(studentApplication().container.projectItemsRepository)
+        }
+        initializer {
+            SearchViewModel(studentApplication().container.teamItemsRepository)
         }
     }
 }

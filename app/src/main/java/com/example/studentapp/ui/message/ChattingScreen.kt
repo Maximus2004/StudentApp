@@ -62,7 +62,14 @@ fun MessageTopBar(
                         tint = Color(0xFF99879D)
                     )
                 }
-                Text(text = "Назад", style = MaterialTheme.typography.caption)
+                Text(
+                    text = "Назад",
+                    style = TextStyle(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp,
+                        color = Color(0xFF99879D)
+                    )
+                )
             }
             Row(
                 modifier = Modifier.padding(start = 15.dp, top = 7.dp),

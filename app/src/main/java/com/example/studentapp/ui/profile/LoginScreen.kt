@@ -11,8 +11,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,6 +26,7 @@ object LoginScreen : NavigationDestination {
     override val route: String = "LoginScreen"
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -50,6 +53,7 @@ fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> U
 
                 val focusRequester1 = remember { FocusRequester() }
                 val focusRequester2 = remember { FocusRequester() }
+                val keyboardController = LocalSoftwareKeyboardController.current
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,7 +77,7 @@ fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> U
                     TextInput(
                         "Пароль",
                         keyboardActions = KeyboardActions(onDone = {
-                            onClickAuthButton(0)
+                            keyboardController?.hide()
                         }),
                         focusRequester = focusRequester2,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),

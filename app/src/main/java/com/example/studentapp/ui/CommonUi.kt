@@ -6,27 +6,30 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studentapp.R
-import com.example.studentapp.data.NavigationItemContent
-import com.example.studentapp.data.PageType
-import com.example.studentapp.data.Team
-import com.example.studentapp.data.User
+import com.example.studentapp.data.*
+import com.example.studentapp.ui.search.TagItem
 import com.example.studentapp.ui.theme.Red
+import com.example.studentapp.ui.theme.StudentAppTheme
 
 @Composable
 fun TopBar(
@@ -34,7 +37,9 @@ fun TopBar(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(top = 16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -46,7 +51,14 @@ fun TopBar(
                 tint = Color(0xFF99879D)
             )
         }
-        Text(text = "Назад", style = MaterialTheme.typography.caption)
+        Text(
+            text = "Назад",
+            style = TextStyle(
+                fontWeight = FontWeight.Medium,
+                fontSize = 18.sp,
+                color = Color(0xFF99879D)
+            )
+        )
     }
 }
 
@@ -68,9 +80,10 @@ fun MemberCard(member: Pair<Int, Boolean>, onProfileClick: () -> Unit, user: Use
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(55.dp)
+                .clip(CircleShape)
         )
         Column() {
-            Text(text = user.name, style = MaterialTheme.typography.h5)
+            Text(text = user.name + " " + user.surname, style = MaterialTheme.typography.h5)
             Text(text = role, style = MaterialTheme.typography.subtitle2)
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -114,8 +127,11 @@ fun BottomNavigationBar(
 }
 
 @Composable
-fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit) {
-    Card(shape = RoundedCornerShape(8.dp), elevation = 8.dp, modifier = modifier.clickable { onItemClick() }) {
+fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit, leader: User, membersNumber: Int) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        elevation = 8.dp,
+        modifier = modifier.clickable { onItemClick() }) {
         Column() {
             Row(
                 modifier = Modifier
@@ -124,15 +140,16 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit)
                     .fillMaxWidth()
             ) {
                 Image(
-                    painterResource(id = R.drawable.avatar2),
+                    painterResource(id = leader.avatar),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(start = 16.dp)
-                        .size(29.dp),
+                        .size(29.dp)
+                        .clip(CircleShape),
                 )
                 Text(
-                    text = "Дмитриев Максим",
+                    text = leader.name + " " + leader.surname,
                     style = TextStyle(
                         fontSize = 20.sp,
                         fontFamily = Red,
@@ -171,7 +188,7 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit)
                     lineHeight = 25.sp
                 )
                 Text(
-                    text = "3 участников",
+                    text = "$membersNumber участников",
                     style = MaterialTheme.typography.subtitle2,
                     modifier = Modifier.padding(vertical = 17.dp)
                 )
@@ -179,7 +196,7 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit)
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(bottom = 16.dp)
                 ) {
-                    items(listOf("UX/UI", "DESIGN", "FIGMA", "PHOTOSHOP")) { tag ->
+                    items(team.tags) { tag ->
                         TagItem(tag)
                     }
                 }
@@ -189,7 +206,12 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit)
 }
 
 @Composable
-fun ProjectCard(name: String, onClickProject: () -> Unit, isLeader: Boolean = false) {
+fun ProjectCard(
+    name: String,
+    onClickProject: () -> Unit,
+    isLeader: Boolean = false,
+    isActive: Boolean = true
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -198,21 +220,39 @@ fun ProjectCard(name: String, onClickProject: () -> Unit, isLeader: Boolean = fa
         shape = RoundedCornerShape(8.dp),
         elevation = 8.dp
     ) {
-        Column(modifier = Modifier.padding(25.dp)) {
-            Text(
-                text = name,
-                style = TextStyle( // h5
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 20.sp,
-                    color = Color(0xFF120E21)
-                ),
-                modifier = Modifier.padding(bottom = 9.dp)
-            )
-            Text(
-                text = if (isLeader) "Руководитель" else "Участник",
-                style = MaterialTheme.typography.h4
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 25.dp)
+        ) {
+            Column(modifier = Modifier
+                .padding(top = 25.dp, bottom = 25.dp)
+                .weight(0.90f)) {
+                Text(
+                    text = name,
+                    style = TextStyle(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 20.sp,
+                        color = Color(0xFF120E21)
+                    ),
+                    modifier = Modifier.padding(bottom = 9.dp)
+                )
+                Text(
+                    text = if (isLeader) "Руководитель" else "Участник",
+                    style = MaterialTheme.typography.h4
+                )
+            }
+            if (isActive) {
+                Row(Modifier.weight(0.10f)) {
+                    Spacer(Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.Filled.Circle,
+                        contentDescription = null,
+                        tint = Color(0xFF25C92C),
+                        modifier = Modifier
+                            .size(15.dp)
+                    )
+                }
+            }
         }
-
     }
 }

@@ -30,11 +30,6 @@ val Typography = Typography(
         fontSize = 18.sp,
         color = Color(0xFFFFFFFF)
     ),
-    caption = TextStyle( // caption
-        fontWeight = FontWeight.Medium,
-        fontSize = 18.sp,
-        color = Color(0xFF99879D)
-    ),
     body1 = TextStyle( // body1
         fontWeight = FontWeight.Normal,
         fontSize = 18.sp,

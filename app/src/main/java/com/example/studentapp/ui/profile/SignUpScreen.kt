@@ -11,10 +11,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,6 +28,7 @@ object SignUpScreen : NavigationDestination {
     override val route: String = "SignUpScreen"
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -43,7 +46,7 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
         ) {
             Card(
                 modifier = Modifier
-                    .padding(top = 88.dp, start = 14.dp, end = 14.dp)
+                    .padding(top = 68.dp, start = 14.dp, end = 14.dp)
                     .wrapContentHeight()
                     .alpha(0.80f),
                 shape = MaterialTheme.shapes.medium,
@@ -55,6 +58,7 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
                 val focusRequester3 = remember { FocusRequester() }
                 val focusRequester4 = remember { FocusRequester() }
                 val focusRequester5 = remember { FocusRequester() }
+                val keyboardController = LocalSoftwareKeyboardController.current
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -99,8 +103,8 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
                     )
                     TextInput(
                         "Расскажите о себе",
-                        keyboardActions = KeyboardActions(onNext = {
-                            onClickRegisterButton(0)
+                        keyboardActions = KeyboardActions(onDone = {
+                            keyboardController?.hide()
                         }),
                         focusRequester = focusRequester5,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -115,7 +119,7 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 24.dp, end = 24.dp, top = 32.dp, bottom = 25.dp)
+                            .padding(start = 24.dp, end = 24.dp, top = 25.dp, bottom = 25.dp)
                     ) {
                         Row(modifier = Modifier.padding(vertical = 10.dp)) {
                             Text(
@@ -136,7 +140,7 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
 
                 }
             }
-            Row(modifier = Modifier.padding(top = 37.dp)) {
+            Row(modifier = Modifier.padding(top = 30.dp)) {
                 Text(text = "Уже есть аккаунт? ", style = MaterialTheme.typography.body1)
                 Text(
                     text = "Войти",
@@ -168,15 +172,14 @@ fun TextInput(
     keyboardTransformation: VisualTransformation
 ) {
     var value by remember { mutableStateOf("") }
-
     TextField(
         value = value,
         onValueChange = { value = it },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 32.dp)
+            .padding(start = 24.dp, end = 24.dp, top = 25.dp)
             .focusRequester(focusRequester),
-        label = { Text(text = inputHint, style = MaterialTheme.typography.subtitle1) },
+        label = { Text(text = inputHint) },
         shape = MaterialTheme.shapes.medium,
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = MaterialTheme.colors.secondary,
@@ -188,7 +191,6 @@ fun TextInput(
         keyboardOptions = keyboardOptions,
         visualTransformation = keyboardTransformation,
         keyboardActions = keyboardActions,
-
     )
 }
 

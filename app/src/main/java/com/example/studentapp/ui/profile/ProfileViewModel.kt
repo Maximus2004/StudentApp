@@ -32,8 +32,3 @@ class ProfileViewModel(private val projectItemsRepository: ItemsRepository) : Vi
         return projectItemsRepository.getUserById(userId)
     }
 }
-
-data class ProfileUiState(
-    val subordinateProjects: List<Project> = listOf(),
-    val leaderProjects: List<Project> = listOf()
-)

@@ -1,8 +1,9 @@
-package com.example.studentapp.ui
+package com.example.studentapp.ui.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -18,24 +19,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.studentapp.data.PageType
-import com.example.studentapp.data.Team
-import com.example.studentapp.data.navigationItemContentList
-import com.example.studentapp.data.teams
+import com.example.studentapp.data.*
+import com.example.studentapp.ui.TeamCard
+import com.example.studentapp.ui.TopBar
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 
 object DetailTeammateScreen : NavigationDestination {
     override val route: String = "DetailTeammateScreen"
+    const val teamId = "teamId"
+    val routeWithArgs: String = "$route/{$teamId}"
 }
 
 @Composable
 fun DetailTeammateScreen(
     team: Team,
-    onClickShowProject: () -> Unit,
+    onClickShowProject: (Int) -> Unit,
     onClickReply: () -> Unit,
     onNavigateBack: () -> Unit,
+    getLeaderById: (Int) -> User,
+    membersNumber: Int,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(
@@ -43,45 +47,52 @@ fun DetailTeammateScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValue ->
         Box() {
-            Column(
+            LazyColumn(
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
                     .fillMaxSize()
-                    .background(MaterialTheme.colors.background)
+                    .background(MaterialTheme.colors.background),
+                contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 77.dp)
             ) {
-                TeamCard(
-                    team = team,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp, top = 18.dp)
-                        .padding(horizontal = 10.dp),
-                    onItemClick = {}
-                )
-                Card(
-                    modifier = Modifier
-                        .height(100.dp)
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable { onClickShowProject() },
-                    shape = RoundedCornerShape(8.dp),
-                    elevation = 4.dp
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                item {
+                    TeamCard(
+                        team = team,
                         modifier = Modifier
+                            .padding(bottom = 8.dp, top = 18.dp)
+                            .padding(horizontal = 10.dp),
+                        onItemClick = {},
+                        leader = getLeaderById(team.leader),
+                        membersNumber = membersNumber
+                    )
+                    Card(
+                        modifier = Modifier
+                            .height(100.dp)
                             .fillMaxWidth()
-                            .padding(26.dp)
+                            .padding(8.dp)
+                            .clickable { onClickShowProject(team.project) },
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = 4.dp
                     ) {
-                        Text(
-                            text = "Посмотреть проект",
-                            style = TextStyle(
-                                fontSize = 18.sp,
-                                fontFamily = Red,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF120E21)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(26.dp)
+                        ) {
+                            Text(
+                                text = "Посмотреть проект",
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    fontFamily = Red,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF120E21)
+                                )
                             )
-                        )
-                        Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             }
@@ -117,7 +128,9 @@ fun DetailTeammateScreenPreview() {
             team = teams[0],
             onClickShowProject = {},
             onClickReply = {},
-            onNavigateBack = {}
+            onNavigateBack = {},
+            getLeaderById = { users[0] },
+            membersNumber = 3
         )
     }
 }

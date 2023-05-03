@@ -70,16 +70,7 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Uni
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onSearch = { onCreateTeammate() }),
-                label = {
-                    Text(
-                        text = "Кратко назовите должность", style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            color = Color(0xFF595959),
-                            fontFamily = Red
-                        )
-                    )
-                },
+                label = { Text(text = "Кратко назовите должность") },
                 modifier = Modifier.padding(18.dp).height(56.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -95,16 +86,7 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Uni
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onSearch = { onCreateTeammate() }),
-                label = {
-                    Text(
-                        text = "Опишите  кандидата в команду", style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            color = Color(0xFF595959),
-                            fontFamily = Red
-                        )
-                    )
-                },
+                label = { Text(text = "Опишите  кандидата в команду") },
                 modifier = Modifier
                     .height(160.dp)
                     .fillMaxWidth()
@@ -123,16 +105,7 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Uni
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onSearch = { onCreateTeammate() }),
-                label = {
-                    Text(
-                        text = "Основные навыки через пробел", style = TextStyle(
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            color = Color(0xFF595959),
-                            fontFamily = Red
-                        )
-                    )
-                },
+                label = { Text(text = "Основные навыки через пробел") },
                 modifier = Modifier
                     .height(160.dp)
                     .fillMaxWidth()

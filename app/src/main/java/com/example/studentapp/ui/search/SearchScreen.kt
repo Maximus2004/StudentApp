@@ -1,4 +1,4 @@
-package com.example.studentapp.ui
+package com.example.studentapp.ui.search
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -26,7 +26,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.studentapp.data.teams
+import com.example.studentapp.data.*
+import com.example.studentapp.ui.TeamCard
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 
@@ -36,48 +37,29 @@ object SearchScreen : NavigationDestination {
 
 @Composable
 fun SearchScreen(
-    onItemClick: () -> Unit,
+    onItemClick: (Int) -> Unit,
+    getLeaderById: (Int) -> User,
+    getProjectById: (Int) -> Project,
     contentPadding: PaddingValues = PaddingValues(),
-    onClickCreateTeam: () -> Unit
 ) {
-    Box() {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.background),
-            contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 77.dp)
-        ) {
-            item {
-                SearchCard()
-            }
-            items(teams) { team ->
-                TeamCard(
-                    team = team,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .padding(horizontal = 10.dp),
-                    onItemClick = { onItemClick() }
-                )
-            }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background),
+        contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 15.dp)
+    ) {
+        item {
+            SearchCard()
         }
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(
-                        text = "Создать команду",
-                        style = MaterialTheme.typography.button
-                    )
-                },
-                onClick = { onClickCreateTeam() },
-                backgroundColor = Color(0xFF9378FF),
+        items(teams) { team ->
+            TeamCard(
+                team = team,
                 modifier = Modifier
-                    .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())
-                    .height(54.dp)
-                    .width(263.dp),
+                    .padding(bottom = 8.dp)
+                    .padding(horizontal = 10.dp),
+                onItemClick = { onItemClick(team.id) },
+                leader = getLeaderById(team.leader),
+                membersNumber = getProjectById(team.project).members.size
             )
         }
     }
@@ -179,6 +161,6 @@ fun SearchField(onClickSearchButton: () -> Unit) {
 @Composable
 fun SearchScreenPreview() {
     StudentAppTheme {
-        SearchScreen(onItemClick = {}, onClickCreateTeam = {})
+        SearchScreen(onItemClick = {}, getLeaderById = { users[0] }, getProjectById = { projects[0] })
     }
 }

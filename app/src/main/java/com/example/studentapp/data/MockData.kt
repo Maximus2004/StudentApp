@@ -30,7 +30,8 @@ data class Team(
     val description: String,
     val project: Int,
     val publishDate: String,
-    val leader: Int
+    val leader: Int,
+    val tags: List<String>
 )
 
 
@@ -97,7 +98,7 @@ val users = listOf(
         description = "Привет, меня зовут Максим, я из Москвы. Опыт работы в районе 4 лет. Буду рад сотрудничесту с вами, всегда вовремя выполняю работу, очень отвественный и вообще я молодец",
         leaderProjects = listOf(0, 2),
         subordinateProjects = listOf(1),
-        avatar = R.drawable.avatar
+        avatar = R.drawable.my_icon
     ),
     User(
         id = 1,
@@ -119,7 +120,7 @@ val users = listOf(
         description = "Я прекрасно пою, ищу команду для создания собственной студии. Мы взорвём стадионы и покорим сердца миллионов слушателей",
         leaderProjects = listOf(),
         subordinateProjects = listOf(2),
-        avatar = R.drawable.avatar
+        avatar = 0
     )
 )
 
@@ -128,17 +129,19 @@ val teams = listOf(
         id = 0,
         name = "Backend-разработчик",
         description = "В хорошую команду ищём хорошего, инициативного, работоспособного разработчика",
-        project = 2,
+        project = 1,
         publishDate = "23.04.2023",
-        leader = 2
+        leader = 1,
+        tags = listOf("BACKEND", "DJANGO", "REACT")
     ),
     Team(
         id = 1,
         name = "Android-разработчик",
         description = "Требуется android-разработчик, отлично знающий Jetpack Compose. Умение писать многопоточные программы также обязательно.",
-        project = 1,
+        project = 0,
         publishDate = "22.04.2023",
-        leader = 1
+        leader = 0,
+        tags = listOf("ANDROID", "COMPOSE", "MVVM", "DEPENDENCY INJECTION")
     )
 )
 

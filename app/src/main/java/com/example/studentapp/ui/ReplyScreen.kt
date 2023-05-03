@@ -18,17 +18,21 @@ import androidx.compose.ui.unit.sp
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
 import com.example.studentapp.ui.navigation.NavigationDestination
+import com.example.studentapp.ui.search.DetailTeammateScreen
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 
 object ReplyScreen : NavigationDestination {
     override val route: String = "ReplyScreen"
+    const val teamName = "teamName"
+    val routeWithArgs: String = "${route}/{$teamName}"
 }
 
 @Composable
 fun ReplyScreen(
     onNavigateBack: () -> Unit,
     onClickSendButton: () -> Unit,
+    teamName: String,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(
@@ -38,7 +42,7 @@ fun ReplyScreen(
         var description by remember { mutableStateOf("") }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Android-разработчик",
+                text = teamName,
                 style = MaterialTheme.typography.h3,
                 modifier = Modifier.padding(40.dp)
             )
@@ -58,7 +62,8 @@ fun ReplyScreen(
                     .height(200.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 17.dp),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                label = { Text(text = "Отправьте сообщение руководителю") }
             )
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -90,7 +95,8 @@ fun ReplyScreenPreview() {
     StudentAppTheme {
         ReplyScreen(
             onNavigateBack = {},
-            onClickSendButton = {}
+            onClickSendButton = {},
+            teamName = "Android-разработчик"
         )
     }
 }

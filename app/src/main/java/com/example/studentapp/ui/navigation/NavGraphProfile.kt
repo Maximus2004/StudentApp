@@ -20,6 +20,7 @@ import com.example.studentapp.ui.home.TAG
 import com.example.studentapp.ui.profile.ProfileScreen
 import com.example.studentapp.ui.profile.ProfileUiState
 import com.example.studentapp.ui.profile.ProfileViewModel
+import com.example.studentapp.ui.search.ActiveProjectScreen
 
 @Composable
 fun NavGraphProfile(
@@ -76,8 +77,28 @@ fun NavGraphProfile(
                     profileViewModel.fillProjects(userId)
                     navController.navigate(DifferentProjects.route)
                 },
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                onClickCreateTeam = {
+                    profileViewModel.fillProjects(userId)
+                    navController.navigate(ChooseProjectScreen.route)
+                },
+                user = profileViewModel.getUserById(userId),
+                textLastProject = profileViewModel.getProjectById(0).name
             )
+        }
+        composable(route = ChooseProjectScreen.route) {
+            ChooseProjectScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onClickProject = { navController.navigate(SearchTeammateScreen.route) },
+                onCreateProject = { navController.navigate(ProjectCreationScreen.route) },
+                contentPadding = contentPadding,
+                leaderProjects = profileUiState.leaderProjects,
+            )
+        }
+        composable(route = ProjectCreationScreen.route) {
+            ProjectCreationScreen(
+                onCreateTeam = { navController.navigate(SearchTeammateScreen.route) },
+                onNavigateBack = { navController.navigateUp() })
         }
         composable(route = DifferentProjects.route) {
             DifferentProjectsScreen(
@@ -85,8 +106,10 @@ fun NavGraphProfile(
                 onClickActiveLeaderProject = { navController.navigate("${MyActiveProjectScreen.route}/${it}") },
                 onClickActiveSubordinateProject = { navController.navigate("${ActiveProjectScreen.route}/${it}") },
                 onClickNotActiveProject = { navController.navigate("${DetailProjectScreen.route}/${it}") },
+                onClickCreateTeam = { navController.navigate(ProjectCreationScreen.route) },
                 leaderProjects = profileUiState.leaderProjects,
-                subordinateProjects = profileUiState.subordinateProjects
+                subordinateProjects = profileUiState.subordinateProjects,
+                contentPadding = contentPadding
             )
         }
         composable(
