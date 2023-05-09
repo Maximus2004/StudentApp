@@ -1,5 +1,6 @@
 package com.example.studentapp.ui.search
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ object AlienScreen : NavigationDestination {
     val routeWithArgs: String = "${route}/{$userId}"
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun AlienProfileScreen(
     onClickShowProjects: () -> Unit,
@@ -45,7 +47,7 @@ fun AlienProfileScreen(
                 Column() {
                     UserCard(
                         name = user.name + " " + user.surname,
-                        modifier = Modifier.padding(bottom = 25.dp, top = 6.dp),
+                        modifier = Modifier.padding(bottom = 20.dp, top = 14.dp),
                         avatar = user.avatar
                     )
                     Text(text = "Описание", style = MaterialTheme.typography.h5)

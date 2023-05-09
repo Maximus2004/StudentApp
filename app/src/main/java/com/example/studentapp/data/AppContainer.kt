@@ -3,16 +3,19 @@ package com.example.studentapp.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 interface AppContainer {
     val projectItemsRepository: ItemsRepository
-    var userPreferencesRepository: UserPreferencesRepository
-    var teamItemsRepository: TeamRepository
+    val userPreferencesRepository: UserPreferencesRepository
+    val teamItemsRepository: TeamRepository
+    var userAuthRepository: AuthRepository
 }
 
 class AppDataContainer(context: Context, dataStore: DataStore<Preferences>) : AppContainer {
     override val projectItemsRepository: ItemsRepository = ProjectItemsRepository()
-    override var userPreferencesRepository: UserPreferencesRepository = UserPreferencesRepository(dataStore)
-    override var teamItemsRepository: TeamRepository = TeamItemsRepository()
+    override val userPreferencesRepository: UserPreferencesRepository = UserPreferencesRepository(dataStore)
+    override val teamItemsRepository: TeamRepository = TeamItemsRepository()
+    override var userAuthRepository: AuthRepository = UserAuthRepository(auth = Firebase.auth)
 }

@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.studentapp.data.Team
 import com.example.studentapp.data.User
 import com.example.studentapp.data.users
 import com.example.studentapp.ui.*
@@ -56,14 +57,15 @@ fun NavGraphSearch(
         ) { backStackEntry ->
             val teamId: Int = backStackEntry.arguments?.getInt(DetailTeammateScreen.teamId)
                 ?: error("teamId cannot be null")
+            val team: Team = searchViewModel.getTeamById(teamId)
             DetailTeammateScreen(
-                team = searchViewModel.getTeamById(teamId),
+                team = team,
                 getLeaderById = { searchViewModel.getUserById(it) },
                 onClickShowProject = { navController.navigate("${ActiveProjectScreen.route}/${it}") },
-                onClickReply = { navController.navigate("${ReplyScreen.route}/${searchViewModel.getTeamById(teamId).name}") },
+                onClickReply = { navController.navigate("${ReplyScreen.route}/${ team.name }") },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
-                membersNumber = searchViewModel.getProjectById(searchViewModel.getTeamById(teamId).project).members.size
+                membersNumber = searchViewModel.getProjectById(team.project).members.size
             )
         }
         composable(

@@ -16,9 +16,6 @@ import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import com.example.studentapp.ui.StudentApp
-import com.example.studentapp.ui.home.HomeScreen
-import com.example.studentapp.ui.navigation.NavGraphSignInUp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

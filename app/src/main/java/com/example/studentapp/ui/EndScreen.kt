@@ -1,5 +1,6 @@
 package com.example.studentapp.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +28,7 @@ object EndScreen : NavigationDestination {
     override val route: String = "EndScreen"
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun EndScreen(
     onClickEnd: () -> Unit = {},

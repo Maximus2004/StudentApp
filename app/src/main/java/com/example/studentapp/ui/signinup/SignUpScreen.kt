@@ -1,4 +1,4 @@
-package com.example.studentapp.ui.profile
+package com.example.studentapp.ui.signinup
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentapp.R
+import com.example.studentapp.ui.TextInput
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
 
@@ -30,7 +31,20 @@ object SignUpScreen : NavigationDestination {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> Unit) {
+fun SignUpScreen(
+    onClickAuthButton: () -> Unit,
+    onClickRegisterButton: () -> Unit,
+    onNameChanged: (String) -> Unit,
+    onSurnameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    name: String,
+    surname: String,
+    email: String,
+    password: String,
+    description: String
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_bubbles),
@@ -68,47 +82,50 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
                         style = MaterialTheme.typography.h2
                     )
                     TextInput(
-                        "Имя",
+                        onDataChanged = { onNameChanged(it) },
+                        currentValue = name,
+                        inputHint = "Имя",
                         keyboardActions = KeyboardActions(onNext = {
                             focusRequester2.requestFocus()
                         }),
                         focusRequester = focusRequester1,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardTransformation = VisualTransformation.None
                     )
                     TextInput(
-                        "Фамилия",
+                        onDataChanged = { onSurnameChanged(it) },
+                        currentValue = surname,
+                        inputHint = "Фамилия",
                         keyboardActions = KeyboardActions(onNext = {
                             focusRequester3.requestFocus()
                         }),
                         focusRequester = focusRequester2,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardTransformation = VisualTransformation.None
                     )
                     TextInput(
-                        "Почта",
+                        onDataChanged = { onEmailChanged(it) },
+                        currentValue = email,
+                        inputHint = "Почта",
                         keyboardActions = KeyboardActions(onNext = {
                             focusRequester4.requestFocus()
                         }),
                         focusRequester = focusRequester3,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardTransformation = VisualTransformation.None
-                    )
+
+                        )
                     TextInput(
-                        "Пароль", keyboardActions = KeyboardActions(onNext = {
+                        onDataChanged = { onPasswordChanged(it) },
+                        currentValue = password,
+                        inputHint = "Пароль", keyboardActions = KeyboardActions(onNext = {
                             focusRequester5.requestFocus()
                         }), focusRequester = focusRequester4,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         keyboardTransformation = PasswordVisualTransformation()
                     )
                     TextInput(
-                        "Расскажите о себе",
+                        onDataChanged = { onDescriptionChanged(it) },
+                        currentValue = description,
+                        inputHint = "Расскажите о себе",
                         keyboardActions = KeyboardActions(onDone = {
                             keyboardController?.hide()
                         }),
                         focusRequester = focusRequester5,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardTransformation = VisualTransformation.None
                     )
                     Button(
                         onClick = { /*TODO*/ },
@@ -151,7 +168,7 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
                 )
             }
             Button(
-                onClick = { onClickRegisterButton(0) },
+                onClick = { onClickRegisterButton() },
                 modifier = Modifier
                     .padding(top = 20.dp, bottom = 113.dp)
                     .size(width = 263.dp, height = 54.dp),
@@ -160,44 +177,5 @@ fun SignUpScreen(onClickAuthButton: () -> Unit, onClickRegisterButton: (Int) -> 
                 Text(text = "Зарегистрироваться")
             }
         }
-    }
-}
-
-@Composable
-fun TextInput(
-    inputHint: String,
-    focusRequester: FocusRequester,
-    keyboardActions: KeyboardActions,
-    keyboardOptions: KeyboardOptions,
-    keyboardTransformation: VisualTransformation
-) {
-    var value by remember { mutableStateOf("") }
-    TextField(
-        value = value,
-        onValueChange = { value = it },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 25.dp)
-            .focusRequester(focusRequester),
-        label = { Text(text = inputHint) },
-        shape = MaterialTheme.shapes.medium,
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.secondary,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        ),
-        singleLine = true,
-        keyboardOptions = keyboardOptions,
-        visualTransformation = keyboardTransformation,
-        keyboardActions = keyboardActions,
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignUpPreview() {
-    StudentAppTheme {
-        SignUpScreen({}, {})
     }
 }

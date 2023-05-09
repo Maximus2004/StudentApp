@@ -1,5 +1,6 @@
 package com.example.studentapp.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -33,6 +34,7 @@ object DetailProjectScreen : NavigationDestination {
 
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun DetailProjectScreen(
@@ -69,7 +71,7 @@ fun DetailProjectScreen(
                     .padding(top = 16.dp),
                 shape = MaterialTheme.shapes.large
             ) {
-                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = contentPadding) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 15.dp)) {
                     item {
                         Text(
                             text = "Опубликовано 3 дня назад",
@@ -93,9 +95,7 @@ fun DetailProjectScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 21.dp)
                         )
-                    }
-                    items(feedbacks) { feedback ->
-                        FeedBackCard(feedback)
+                        FeedBackCard(feedbacks[0])
                     }
                 }
             }
@@ -140,12 +140,6 @@ fun FeedBackCard(feedback: FeedbackInfo) {
             modifier = Modifier
                 .width(100.dp)
                 .height(16.dp)
-        )
-        Divider(
-            thickness = 1.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 21.dp)
         )
     }
 }

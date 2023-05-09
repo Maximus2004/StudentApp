@@ -17,11 +17,11 @@ import com.example.studentapp.ui.navigation.NavGraphSearch
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.profile.ProfileViewModel
 
-val TAG = "QWERTY"
+const val TAG = "QWERTY"
 
 @Composable
 fun HomeScreen(
-    userId: Int,
+    userId: String,
     homeViewModel: HomeViewModel = viewModel(factory = ViewModelProvider.Factory),
     messageViewModel: MessageViewModel = viewModel(factory = ViewModelProvider.Factory)
 ) {

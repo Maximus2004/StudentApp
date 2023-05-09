@@ -1,5 +1,6 @@
 package com.example.studentapp.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ object DifferentProjects : NavigationDestination {
     override val route: String = "DifferentProjects"
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun DifferentProjectsScreen(
     onNavigateBack: () -> Unit = {},
@@ -46,11 +48,11 @@ fun DifferentProjectsScreen(
                         name = project.name,
                         onClickProject = {
                             if (project.isActive) {
-                                if (isShowingCreationButton) onClickActiveLeaderProject(project.id)
-                                else onClickActiveSubordinateProject(project.id)
+                                if (isShowingCreationButton) onClickActiveLeaderProject(0)
+                                else onClickActiveSubordinateProject(0)
                             }
                             else
-                                onClickNotActiveProject(project.id)
+                                onClickNotActiveProject(0)
                         },
                         isLeader = true,
                         isActive = project.isActive
@@ -61,9 +63,9 @@ fun DifferentProjectsScreen(
                         name = project.name,
                         onClickProject = {
                             if (project.isActive)
-                                onClickActiveSubordinateProject(project.id)
+                                onClickActiveSubordinateProject(0)
                             else
-                                onClickNotActiveProject(project.id)
+                                onClickNotActiveProject(0)
                         },
                         isLeader = false,
                         isActive = project.isActive

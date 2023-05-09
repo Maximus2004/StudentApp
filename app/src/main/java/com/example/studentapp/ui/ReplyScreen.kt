@@ -1,5 +1,6 @@
 package com.example.studentapp.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,6 +29,7 @@ object ReplyScreen : NavigationDestination {
     val routeWithArgs: String = "${route}/{$teamName}"
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ReplyScreen(
     onNavigateBack: () -> Unit,

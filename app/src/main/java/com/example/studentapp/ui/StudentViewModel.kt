@@ -16,8 +16,8 @@ class StudentViewModel(private val userPreferencesRepository: UserPreferencesRep
     val uiState: StateFlow<DessertReleaseUiState> =
         userPreferencesRepository.isUserRegistered
             // получаем Flow из репозитория и переводим ео в UiState
-            .map { isLinearLayout ->
-                DessertReleaseUiState(isLinearLayout)
+            .map { isUserRegistered ->
+                DessertReleaseUiState(isUserRegistered)
             }
             // переводим UiState в StateFlow
             .stateIn(
@@ -26,11 +26,11 @@ class StudentViewModel(private val userPreferencesRepository: UserPreferencesRep
                 initialValue = DessertReleaseUiState()
             )
 
-    fun changeUser(isLinearLayout: Int) {
+    fun changeUser(isUserRegistered: String) {
         viewModelScope.launch {
-            userPreferencesRepository.saveUserPreferences(isLinearLayout)
+            userPreferencesRepository.saveUserPreferences(isUserRegistered)
         }
     }
 }
 
-data class DessertReleaseUiState(val isUserRegistered: Int = -1)
+data class DessertReleaseUiState(val isUserRegistered: String = "")

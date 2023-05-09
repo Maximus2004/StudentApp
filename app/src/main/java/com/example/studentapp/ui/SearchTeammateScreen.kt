@@ -1,5 +1,6 @@
 package com.example.studentapp.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -7,8 +8,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -25,6 +28,8 @@ object SearchTeammateScreen : NavigationDestination {
     override val route: String = "SearchTeammate"
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Unit) {
     Scaffold(
@@ -56,6 +61,7 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Uni
         var name by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
         var tags by remember { mutableStateOf("") }
+        val keyboardController = LocalSoftwareKeyboardController.current
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "Кого вы хотите найти?", style = MaterialTheme.typography.h3)
             TextField(
@@ -104,7 +110,9 @@ fun SearchTeammateScreen(onCreateTeammate: () -> Unit, onNavigateBack: () -> Uni
                     disabledIndicatorColor = Color.Transparent
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onSearch = { onCreateTeammate() }),
+                keyboardActions = KeyboardActions(onDone = {
+                    keyboardController?.hide()
+                    onCreateTeammate() }),
                 label = { Text(text = "Основные навыки через пробел") },
                 modifier = Modifier
                     .height(160.dp)

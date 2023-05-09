@@ -1,5 +1,6 @@
 package com.example.studentapp.ui.search
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,6 +33,7 @@ object DetailTeammateScreen : NavigationDestination {
     val routeWithArgs: String = "$route/{$teamId}"
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun DetailTeammateScreen(
     team: Team,
@@ -45,7 +47,7 @@ fun DetailTeammateScreen(
     Scaffold(
         topBar = { TopBar(onNavigateBack = { onNavigateBack() }) },
         modifier = Modifier.fillMaxSize()
-    ) { paddingValue ->
+    ) {
         Box() {
             LazyColumn(
                 modifier = Modifier

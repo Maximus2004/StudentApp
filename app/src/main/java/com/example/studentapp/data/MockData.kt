@@ -4,11 +4,11 @@ import androidx.annotation.DrawableRes
 import com.example.studentapp.R
 
 data class Project(
-    val id: Int,
+    val id: String,
     val name: String,
     val description: String,
     val isActive: Boolean,
-    val members: List<Pair<Int, Boolean>>
+    val members: List<Pair<String, Boolean>>
 )
 
 data class User(
@@ -66,25 +66,25 @@ val photos = listOf(
 
 val projects = listOf(
     Project(
-        id = 0,
+        id = "0",
         name = "Android-приложение для организации мероприятий",
         description = "Мы создаём приложение, которое поможет людям в организации самых различных мероприятий, начиная от гей-парадов и заканчивая научными конференциями. Собираем команду инициативных и обучаемый ребят, которые будут готовы активно работать над общей идеей.",
         isActive = true,
-        members = listOf(Pair(0, true), Pair(1, false))
+        members = listOf(Pair("0", true), Pair("1", false))
     ),
     Project(
-        id = 1,
+        id = "0",
         name = "Backend-приложение для геолокации автомобилей",
         description = "Продукт, который должен будет изменить мир, позволить человечеству сделать ещё один шаг навстречу летающим машинам. Мы получим кучу наград и взорвём этот мир (разработкой имеется в виду).",
         isActive = true,
-        members = listOf(Pair(1, true), Pair(0, false))
+        members = listOf(Pair("1", true), Pair("0", false))
     ),
     Project(
-        id = 2,
+        id = "0",
         name = "Команда для хакатона",
         description = "Собираю команду для участия в хакатоне от Силиконовой долины. Задания будет принимать лично Билл Гейтс и Стив Джобс (да, воскреснет, чтобы поучаствовать в хакатоне)",
         isActive = false,
-        members = listOf(Pair(0, true), Pair(2, false))
+        members = listOf(Pair("0", true), Pair("2", false))
     )
 )
 

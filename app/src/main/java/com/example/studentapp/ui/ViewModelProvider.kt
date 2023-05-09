@@ -1,7 +1,6 @@
 package com.example.studentapp.ui
 
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -9,6 +8,7 @@ import com.example.studentapp.StudentApplication
 import com.example.studentapp.ui.home.HomeViewModel
 import com.example.studentapp.ui.message.MessageViewModel
 import com.example.studentapp.ui.profile.ProfileViewModel
+import com.example.studentapp.ui.signinup.SignInUpViewModel
 import com.example.studentapp.ui.search.SearchViewModel
 
 object ViewModelProvider {
@@ -23,10 +23,14 @@ object ViewModelProvider {
             MessageViewModel()
         }
         initializer {
-            ProfileViewModel(studentApplication().container.projectItemsRepository)
+            ProfileViewModel(
+                studentApplication().container.projectItemsRepository)
         }
         initializer {
             SearchViewModel(studentApplication().container.teamItemsRepository)
+        }
+        initializer {
+            SignInUpViewModel(studentApplication().container.userAuthRepository)
         }
     }
 }

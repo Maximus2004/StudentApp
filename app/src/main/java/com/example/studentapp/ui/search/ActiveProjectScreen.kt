@@ -1,5 +1,6 @@
 package com.example.studentapp.ui.search
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +25,7 @@ object ActiveProjectScreen : NavigationDestination {
     val routeWithArgs: String = "$route/{$projectId}"
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ActiveProjectScreen(
     contentPadding: PaddingValues = PaddingValues(),
@@ -59,7 +61,7 @@ fun ActiveProjectScreen(
 
             }
             items(project.members) { member ->
-                MemberCard(member = member, onProfileClick = { onClickProfile(member.first) }, user = getUserById(member.first))
+                MemberCard(member = Pair(0, true), onProfileClick = { onClickProfile(0) }, user = getUserById(0))
             }
         }
     }

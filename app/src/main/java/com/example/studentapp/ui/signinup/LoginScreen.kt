@@ -1,4 +1,4 @@
-package com.example.studentapp.ui.profile
+package com.example.studentapp.ui.signinup
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentapp.R
+import com.example.studentapp.ui.TextInput
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
 
@@ -28,7 +29,14 @@ object LoginScreen : NavigationDestination {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> Unit) {
+fun LoginScreen(
+    onClickAuthButton: (Boolean) -> Unit,
+    onClickRegisterButton: () -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    password: String,
+    email: String
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_bubbles),
@@ -66,7 +74,9 @@ fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> U
                         style = MaterialTheme.typography.h2
                     )
                     TextInput(
-                        "Почта",
+                        onDataChanged = { onEmailChanged(it) },
+                        currentValue = email,
+                        inputHint = "Почта",
                         keyboardActions = KeyboardActions(onNext = {
                             focusRequester2.requestFocus()
                         }),
@@ -75,7 +85,9 @@ fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> U
                         keyboardTransformation = VisualTransformation.None
                     )
                     TextInput(
-                        "Пароль",
+                        onDataChanged = { onPasswordChanged(it) },
+                        currentValue = password,
+                        inputHint = "Пароль",
                         keyboardActions = KeyboardActions(onDone = {
                             keyboardController?.hide()
                         }),
@@ -95,7 +107,7 @@ fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> U
                 )
             }
             Button(
-                onClick = { onClickAuthButton(0) },
+                onClick = { onClickAuthButton(true) },
                 modifier = Modifier
                     .padding(top = 20.dp, bottom = 113.dp)
                     .size(width = 263.dp, height = 54.dp),
@@ -104,14 +116,5 @@ fun LoginScreen(onClickAuthButton: (Int) -> Unit, onClickRegisterButton: () -> U
                 Text(text = "Войти")
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun LoginPreview() {
-    StudentAppTheme {
-        LoginScreen({}, {})
     }
 }

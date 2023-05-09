@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,10 +28,11 @@ fun NavGraphProfile(
     profileViewModel: ProfileViewModel = viewModel(factory = ViewModelProvider.Factory),
     navState: MutableState<Bundle>,
     contentPadding: PaddingValues,
-    userId: Int
+    userId: String
 ) {
     val profileUiState = profileViewModel.uiState.collectAsState().value
     val navController = rememberNavController()
+    val context = LocalContext.current
     navController.addOnDestinationChangedListener { navControll, _, _ ->
         navState.value = navControll.saveState() ?: Bundle()
     }
@@ -74,15 +76,15 @@ fun NavGraphProfile(
         composable(route = ProfileScreen.route) {
             ProfileScreen(
                 onClickShowProjects = {
-                    profileViewModel.fillProjects(userId)
+                    profileViewModel.fillProjects(0)
                     navController.navigate(DifferentProjects.route)
                 },
                 contentPadding = contentPadding,
                 onClickCreateTeam = {
-                    profileViewModel.fillProjects(userId)
+                    profileViewModel.fillProjects(0)
                     navController.navigate(ChooseProjectScreen.route)
                 },
-                user = profileViewModel.getUserById(userId),
+                user = profileViewModel.getUserById(0),
                 textLastProject = profileViewModel.getProjectById(0).name
             )
         }
@@ -97,8 +99,17 @@ fun NavGraphProfile(
         }
         composable(route = ProjectCreationScreen.route) {
             ProjectCreationScreen(
-                onCreateTeam = { navController.navigate(SearchTeammateScreen.route) },
-                onNavigateBack = { navController.navigateUp() })
+                onCreateTeam = {
+                    profileViewModel.addProject(userId, context)
+                    navController.navigate(SearchTeammateScreen.route)
+                },
+                onNavigateBack = { navController.navigateUp() },
+                onNameChanged = { profileViewModel.onNameChanged(it) },
+                onDescriptionChanged = { profileViewModel.onDescriptionChanged(it) },
+                name = profileUiState.projectName,
+                description = profileUiState.projectDescription,
+                contentPadding = contentPadding
+            )
         }
         composable(route = DifferentProjects.route) {
             DifferentProjectsScreen(

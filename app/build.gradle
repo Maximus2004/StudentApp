@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp' version "1.7.21-1.0.8"
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -38,7 +39,7 @@ android {
     }
     // важная характеристика, которая должна совпадать с compose_ui_version
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion '1.3.0'
     }
     packagingOptions {
         resources {
@@ -83,4 +84,10 @@ dependencies {
 
     // отвечает за преференсы
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    // отвечает за firebase
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+    // целый вечер мучался с этим "внедрением", в итоге оказалось, что нужно при помощи classpath изменить language version и подобрать под него compose version
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 }

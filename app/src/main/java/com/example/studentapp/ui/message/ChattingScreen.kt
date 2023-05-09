@@ -1,5 +1,6 @@
 package com.example.studentapp.ui.message
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -117,6 +118,7 @@ fun MessageTopBar(
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ChattingScreen(onNavigateBack: () -> Unit, contentPadding: PaddingValues = PaddingValues()) {
     Scaffold(
