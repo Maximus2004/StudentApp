@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.studentapp.data.Team
 import com.example.studentapp.data.User
+import com.example.studentapp.data.teams
 import com.example.studentapp.data.users
 import com.example.studentapp.ui.*
 import com.example.studentapp.ui.search.*
@@ -41,13 +42,9 @@ fun NavGraphSearch(
                 onItemClick = { navController.navigate("${DetailTeammateScreen.route}/${it}") },
                 contentPadding = contentPadding,
                 getLeaderById = { searchViewModel.getUserById(it) },
-                getProjectById = { searchViewModel.getProjectById(it) }
+                getProjectById = { searchViewModel.getProjectById(it) },
+                teams = teams
             )
-        }
-        composable(route = SearchTeammateScreen.route) {
-            SearchTeammateScreen(
-                onCreateTeammate = { navController.navigate(SearchScreen.route) },
-                onNavigateBack = { navController.navigateUp() })
         }
         composable(
             route = DetailTeammateScreen.routeWithArgs,
@@ -65,7 +62,7 @@ fun NavGraphSearch(
                 onClickReply = { navController.navigate("${ReplyScreen.route}/${ team.name }") },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
-                membersNumber = searchViewModel.getProjectById(team.project).members.size
+                membersNumber = searchViewModel.getProjectById(0).members.size
             )
         }
         composable(
@@ -81,7 +78,7 @@ fun NavGraphSearch(
                     backStackEntry.arguments?.getInt(ActiveProjectScreen.projectId)
                         ?: error("projectId cannot be null")
                 ),
-                getUserById = { searchViewModel.getUserById(it) },
+                users = listOf(),
                 onClickProfile = { navController.navigate("${AlienScreen.route}/${it}") }
             )
         }
@@ -95,8 +92,8 @@ fun NavGraphSearch(
             ?: error("userId cannot be null")
             AlienProfileScreen(
                 onClickShowProjects = {
-                    searchViewModel.fillProjects(userId)
-                    navController.navigate(DifferentProjects.route)
+                    //searchViewModel.fillProjects(userId)
+                    //navController.navigate(DifferentProjects.route)
                 },
                 onNavigateBack = { navController.navigateUp() },
                 user = searchViewModel.getUserById(userId),
@@ -122,8 +119,8 @@ fun NavGraphSearch(
                 onNavigateBack = { navController.navigateUp() },
                 onClickActiveSubordinateProject = { navController.navigate("${ActiveProjectScreen.route}/${it}") },
                 onClickNotActiveProject = { navController.navigate("${DetailProjectScreen.route}/${it}") },
-                leaderProjects = searchUiState.leaderProjects,
-                subordinateProjects = searchUiState.subordinateProjects,
+                leaderProjects = mutableListOf(),
+                subordinateProjects = mutableListOf(),
                 contentPadding = contentPadding,
                 isShowingCreationButton = false
             )

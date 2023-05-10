@@ -31,7 +31,6 @@ object DetailProjectScreen : NavigationDestination {
     override val route: String = "DetailProjectScreen"
     const val projectId = "projectId"
     val routeWithArgs: String = "${route}/{$projectId}"
-
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

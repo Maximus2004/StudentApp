@@ -24,7 +24,10 @@ object ViewModelProvider {
         }
         initializer {
             ProfileViewModel(
-                studentApplication().container.projectItemsRepository)
+                studentApplication().container.projectItemsRepository,
+                studentApplication().container.teamItemsRepository,
+                studentApplication().container.userAuthRepository
+            )
         }
         initializer {
             SearchViewModel(studentApplication().container.teamItemsRepository)

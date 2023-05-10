@@ -60,7 +60,7 @@ fun AlienProfileScreen(
                     InfoCard(
                         modifier = Modifier.padding(top = 19.dp),
                         onClickShowProjects = onClickShowProjects,
-                        numberOfProjects = user.subordinateProjects.size + user.leaderProjects.size,
+                        numberOfProjects = user.subordinateProjects!!.size + user.leaderProjects!!.size,
                         textLastProject = textLastProject
                     )
                     Text(text = "Портфолио", style = MaterialTheme.typography.h5)

@@ -1,9 +1,12 @@
 package com.example.studentapp.ui
 
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -16,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.studentapp.data.Project
 import com.example.studentapp.data.User
 import com.example.studentapp.data.projects
+import com.example.studentapp.ui.home.TAG
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
 
@@ -28,48 +32,51 @@ object MyActiveProjectScreen : NavigationDestination {
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MyActiveProjectScreen(
-    project: Project = projects[0],
-    getUserById: (Int) -> User,
+    project: Project,
     onNavigateBack: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
     onCollectPeople: () -> Unit = {},
-    onEndProject: () -> Unit = {}
+    onEndProject: () -> Unit = {},
+    users: List<User> = listOf()
 ) {
+    Log.d(TAG, project.name)
     Scaffold(
         topBar = { TopBar(onNavigateBack = { onNavigateBack() }) },
     ) {
         Box() {
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 77.dp)) {
-                item {
-                    Text(
-                        text = "Опубликовано 3 дня назад",
-                        style = MaterialTheme.typography.subtitle2,
-                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
-                    )
-                    Text(
-                        text = project.name,
-                        style = MaterialTheme.typography.h3,
-                        modifier = Modifier.padding(start = 25.dp, top = 4.dp, end = 24.dp)
-                    )
-                    Text(
-                        text = project.description,
-                        style = MaterialTheme.typography.h4,
-                        modifier = Modifier.padding(
-                            start = 24.dp,
-                            top = 16.dp,
-                            end = 24.dp,
-                            bottom = 16.dp
-                        ),
-                        lineHeight = 27.sp
-                    )
+            AnimatedVisibility(visible = project.name.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 77.dp)) {
+                    item {
+                        Text(
+                            text = "Опубликовано 3 дня назад",
+                            style = MaterialTheme.typography.subtitle2,
+                            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
+                        )
+                        Text(
+                            text = project.name,
+                            style = MaterialTheme.typography.h3,
+                            modifier = Modifier.padding(start = 25.dp, top = 4.dp, end = 24.dp)
+                        )
+                        Text(
+                            text = project.description,
+                            style = MaterialTheme.typography.h4,
+                            modifier = Modifier.padding(
+                                start = 24.dp,
+                                top = 16.dp,
+                                end = 24.dp,
+                                bottom = 16.dp
+                            ),
+                            lineHeight = 27.sp
+                        )
 
-                }
-                items(project.members) { member ->
-                    MemberCard(
-                        member = Pair(0, true),
-                        onProfileClick = {},
-                        user = getUserById(0)
-                    )
+                    }
+                    itemsIndexed(project.members.toList()) { index, member ->
+                        MemberCard(
+                            member = member,
+                            onProfileClick = {},
+                            user = if (index < users.size) users[index] else User()
+                        )
+                    }
                 }
             }
             Column(

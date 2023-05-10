@@ -62,7 +62,7 @@ fun DetailTeammateScreen(
                             .padding(bottom = 8.dp, top = 18.dp)
                             .padding(horizontal = 10.dp),
                         onItemClick = {},
-                        leader = getLeaderById(team.leader),
+                        leader = getLeaderById(0),
                         membersNumber = membersNumber
                     )
                     Card(
@@ -70,7 +70,7 @@ fun DetailTeammateScreen(
                             .height(100.dp)
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .clickable { onClickShowProject(team.project) },
+                            .clickable { onClickShowProject(0) },
                         shape = RoundedCornerShape(8.dp),
                         elevation = 4.dp
                     ) {

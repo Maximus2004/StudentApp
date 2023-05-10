@@ -60,6 +60,8 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
                         "Успешная регистрация",
                         Toast.LENGTH_SHORT
                     ).show()
+                    userAuthRepository.createNewUser(uiState.value.name, uiState.value.surname, uiState.value.description)
+                    onFinish()
                 } else {
                     Toast.makeText(
                         context,
@@ -68,7 +70,6 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
                     ).show()
                 }
             }
-            onFinish()
         }
     }
 
@@ -81,6 +82,7 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
                         "Успешный вход",
                         Toast.LENGTH_SHORT
                     ).show()
+                    onFinish()
                 } else {
                     Toast.makeText(
                         context,
@@ -89,7 +91,6 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
                     ).show()
                 }
             }
-            onFinish()
         }
     }
 }

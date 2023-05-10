@@ -26,6 +26,8 @@ import com.example.studentapp.ui.theme.StudentAppTheme
 
 object EndScreen : NavigationDestination {
     override val route: String = "EndScreen"
+    const val projectId = "projectId"
+    val routeWithArgs: String = "${route}/{$projectId}"
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

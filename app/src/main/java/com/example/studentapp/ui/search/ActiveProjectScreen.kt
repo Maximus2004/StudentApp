@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,7 +32,7 @@ fun ActiveProjectScreen(
     contentPadding: PaddingValues = PaddingValues(),
     onNavigateBack: () -> Unit = {},
     project: Project,
-    getUserById: (Int) -> User,
+    users: List<User>,
     onClickProfile: (Int) -> Unit = {}
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -58,10 +59,9 @@ fun ActiveProjectScreen(
                     ),
                     lineHeight = 27.sp
                 )
-
             }
-            items(project.members) { member ->
-                MemberCard(member = Pair(0, true), onProfileClick = { onClickProfile(0) }, user = getUserById(0))
+            itemsIndexed(project.members.toList()) { index, member ->
+                MemberCard(member = member, onProfileClick = { onClickProfile(0) }, user = if (index < users.size) users[index] else User())
             }
         }
     }

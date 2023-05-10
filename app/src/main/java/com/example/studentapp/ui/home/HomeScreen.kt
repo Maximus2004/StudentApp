@@ -25,7 +25,6 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = viewModel(factory = ViewModelProvider.Factory),
     messageViewModel: MessageViewModel = viewModel(factory = ViewModelProvider.Factory)
 ) {
-    Log.i(TAG, userId.toString())
     val homeUiState = homeViewModel.uiState.collectAsState().value
     val messageUiState = messageViewModel.uiState.collectAsState().value
     val navStateSearch = remember { mutableStateOf(Bundle()) }

@@ -69,7 +69,7 @@ fun TopBar(
 }
 
 @Composable
-fun MemberCard(member: Pair<Int, Boolean>, onProfileClick: () -> Unit, user: User) {
+fun MemberCard(member: Pair<String, Boolean>, onProfileClick: () -> Unit, user: User) {
     val role = if (member.second) "Руководитель" else "Участник"
     val color = if (member.second) Color(0xFFFFFFFF) else MaterialTheme.colors.background
     Row(
@@ -214,7 +214,8 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit,
 @Composable
 fun ProjectCard(
     name: String,
-    onClickProject: () -> Unit,
+    projectId: String,
+    onClickProject: (String) -> Unit,
     isLeader: Boolean = false,
     isActive: Boolean = true
 ) {
@@ -222,7 +223,7 @@ fun ProjectCard(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onClickProject() },
+            .clickable { onClickProject(projectId) },
         shape = RoundedCornerShape(8.dp),
         elevation = 8.dp
     ) {

@@ -40,6 +40,7 @@ fun SearchScreen(
     onItemClick: (Int) -> Unit,
     getLeaderById: (Int) -> User,
     getProjectById: (Int) -> Project,
+    teams: List<Team>,
     contentPadding: PaddingValues = PaddingValues(),
 ) {
     LazyColumn(
@@ -57,9 +58,9 @@ fun SearchScreen(
                 modifier = Modifier
                     .padding(bottom = 8.dp)
                     .padding(horizontal = 10.dp),
-                onItemClick = { onItemClick(team.id) },
-                leader = getLeaderById(team.leader),
-                membersNumber = getProjectById(team.project).members.size
+                onItemClick = { onItemClick(0) },
+                leader = getLeaderById(0),
+                membersNumber = getProjectById(0).members.size
             )
         }
     }
@@ -154,13 +155,5 @@ fun SearchField(onClickSearchButton: () -> Unit) {
                 color = Color(0xFF120E21)
             )
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SearchScreenPreview() {
-    StudentAppTheme {
-        SearchScreen(onItemClick = {}, getLeaderById = { users[0] }, getProjectById = { projects[0] })
     }
 }

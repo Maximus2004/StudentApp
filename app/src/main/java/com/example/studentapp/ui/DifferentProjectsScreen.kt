@@ -12,12 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentapp.data.Project
 import com.example.studentapp.ui.navigation.NavigationDestination
-import com.example.studentapp.ui.profile.ProfileUiState
-import com.example.studentapp.ui.theme.StudentAppTheme
 
 object DifferentProjects : NavigationDestination {
     override val route: String = "DifferentProjects"
@@ -27,17 +24,17 @@ object DifferentProjects : NavigationDestination {
 @Composable
 fun DifferentProjectsScreen(
     onNavigateBack: () -> Unit = {},
-    onClickActiveLeaderProject: (Int) -> Unit = {},
-    onClickActiveSubordinateProject: (Int) -> Unit = {},
-    onClickNotActiveProject: (Int) -> Unit = {},
-    leaderProjects: List<Project>,
-    subordinateProjects: List<Project>,
+    onClickActiveLeaderProject: (String) -> Unit = {},
+    onClickActiveSubordinateProject: (String) -> Unit = {},
+    onClickNotActiveProject: (String) -> Unit = {},
+    leaderProjects: MutableList<Project>,
+    subordinateProjects: MutableList<Project>,
     onClickCreateTeam: () -> Unit = {},
     isShowingCreationButton: Boolean = true,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
-        Box() {
+        Box {
             LazyColumn(
                 contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 10.dp, bottom = contentPadding.calculateBottomPadding() + 77.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -47,28 +44,30 @@ fun DifferentProjectsScreen(
                     ProjectCard(
                         name = project.name,
                         onClickProject = {
-                            if (project.isActive) {
-                                if (isShowingCreationButton) onClickActiveLeaderProject(0)
-                                else onClickActiveSubordinateProject(0)
+                            if (project.active) {
+                                if (isShowingCreationButton) onClickActiveLeaderProject(project.id)
+                                else onClickActiveSubordinateProject(project.id)
                             }
                             else
-                                onClickNotActiveProject(0)
+                                onClickNotActiveProject(project.id)
                         },
                         isLeader = true,
-                        isActive = project.isActive
+                        isActive = project.active,
+                        projectId = project.id
                     )
                 }
                 items(subordinateProjects) { project ->
                     ProjectCard(
                         name = project.name,
                         onClickProject = {
-                            if (project.isActive)
-                                onClickActiveSubordinateProject(0)
+                            if (project.active)
+                                onClickActiveSubordinateProject(project.id)
                             else
-                                onClickNotActiveProject(0)
+                                onClickNotActiveProject(project.id)
                         },
                         isLeader = false,
-                        isActive = project.isActive
+                        isActive = project.active,
+                        projectId = project.id
                     )
                 }
             }
@@ -95,16 +94,5 @@ fun DifferentProjectsScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DifferentProjectsScreenPreview() {
-    StudentAppTheme {
-        DifferentProjectsScreen(
-            leaderProjects = listOf(),
-            subordinateProjects = listOf()
-        )
     }
 }

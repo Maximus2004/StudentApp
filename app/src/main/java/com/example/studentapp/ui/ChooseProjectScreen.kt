@@ -1,25 +1,17 @@
 package com.example.studentapp.ui
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.studentapp.data.Project
 import com.example.studentapp.ui.navigation.NavigationDestination
-import com.example.studentapp.ui.theme.Red
-import com.example.studentapp.ui.theme.StudentAppTheme
 
 object ChooseProjectScreen : NavigationDestination {
     override val route: String = "ChooseProjectScreen"
@@ -29,9 +21,9 @@ object ChooseProjectScreen : NavigationDestination {
 @Composable
 fun ChooseProjectScreen(
     onNavigateBack: () -> Unit,
-    onClickProject: () -> Unit,
+    onClickProject: (String) -> Unit,
     onCreateProject: () -> Unit,
-    leaderProjects: List<Project>,
+    leaderProjects: MutableList<Project>,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -54,9 +46,10 @@ fun ChooseProjectScreen(
                     }
                 }
                 items(leaderProjects) { project ->
-                    if (project.isActive)
+                    if (project.active)
                         ProjectCard(
                             name = project.name,
+                            projectId = project.id,
                             onClickProject = onClickProject,
                             isActive = true,
                             isLeader = true

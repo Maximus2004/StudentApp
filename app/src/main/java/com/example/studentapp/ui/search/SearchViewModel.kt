@@ -10,13 +10,20 @@ class SearchViewModel(private val teamItemsRepository: TeamRepository) : ViewMod
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
 
-    fun fillProjects(userId: Int) {
-        _uiState.update {
-            it.copy(
-                subordinateProjects = teamItemsRepository.getSubordinateProjectList(userId),
-                leaderProjects = teamItemsRepository.getLeaderProjectList(userId)
-            )
-        }
+    init {
+        getTeamsList()
+    }
+
+//    fun fillProjects(userId: Int) {
+//        _uiState.update {
+//            it.copy(
+//                subordinateProjects = teamItemsRepository.getSubordinateProjectList(userId),
+//                leaderProjects = teamItemsRepository.getLeaderProjectList(userId)
+//            )
+//        }
+//    }
+    fun getTeamsList() {
+        _uiState.update { it.copy(currentTeamsList = teamItemsRepository.getTeams()) }
     }
     fun getTeamById(teamId: Int): Team {
         return teamItemsRepository.getTeamById(teamId)
