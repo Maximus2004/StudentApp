@@ -206,7 +206,7 @@ fun FromMessage(text: String, time: String) {
                 .width(181.dp)
         ) {
             Text(
-                text = text,
+                text = text.dropLast(2),
                 style = TextStyle(
                     fontWeight = FontWeight.Normal,
                     fontSize = 13.sp,

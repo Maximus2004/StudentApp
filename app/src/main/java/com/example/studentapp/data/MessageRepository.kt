@@ -51,7 +51,7 @@ class MessageRepository : MessRepository {
             var snapshotStateListener: ListenerRegistration? = null
             try {
                 snapshotStateListener =
-                    messagesRef.orderBy("id", Query.Direction.DESCENDING).addSnapshotListener { snapshot, e ->
+                    messagesRef.orderBy("time", Query.Direction.ASCENDING).addSnapshotListener { snapshot, e ->
                         val response = if (snapshot != null) {
                             val messages = snapshot.toObjects(Message::class.java)
                             messages
