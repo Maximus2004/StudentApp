@@ -6,6 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
@@ -14,14 +16,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowInsetsCompat
 import com.example.studentapp.R
 import com.example.studentapp.ui.TextInput
 import com.example.studentapp.ui.navigation.NavigationDestination
-import com.example.studentapp.ui.theme.StudentAppTheme
 
 object LoginScreen : NavigationDestination {
     override val route: String = "LoginScreen"
@@ -35,7 +38,9 @@ fun LoginScreen(
     onEmailChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     password: String,
-    email: String
+    email: String,
+    isEmailError: Boolean,
+    isPasswordError: Boolean
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -82,18 +87,18 @@ fun LoginScreen(
                         }),
                         focusRequester = focusRequester1,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardTransformation = VisualTransformation.None
+                        keyboardTransformation = VisualTransformation.None,
+                        isError = isEmailError
                     )
                     TextInput(
                         onDataChanged = { onPasswordChanged(it) },
                         currentValue = password,
                         inputHint = "Пароль",
-                        keyboardActions = KeyboardActions(onDone = {
-                            keyboardController?.hide()
-                        }),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                         focusRequester = focusRequester2,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardTransformation = PasswordVisualTransformation()
+                        keyboardTransformation = PasswordVisualTransformation(),
+                        isError = isPasswordError
                     )
                 }
             }

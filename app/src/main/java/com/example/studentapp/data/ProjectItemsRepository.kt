@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 const val PROJECTS_COLLECTION_REF = "projects"
 
 interface ItemsRepository {
-    suspend fun getProjectList(projectIds: MutableList<String>): MutableList<Project>
+    suspend fun getProjectList(projectIds: HashMap<String, Boolean>): HashMap<Project, Boolean>
     suspend fun getProjectById(projectId: String): Project
     fun addProject(
         userId: String,
@@ -22,23 +22,19 @@ interface ItemsRepository {
         members: HashMap<String, Boolean>,
         onComplete: (Boolean, String) -> Unit
     )
-    fun endProject(projectId: String)
 }
 
 class ProjectItemsRepository : ItemsRepository {
-    private val projectsRef: CollectionReference =
-        Firebase.firestore.collection(PROJECTS_COLLECTION_REF)
-
-    override suspend fun getProjectList(projectIds: MutableList<String>): MutableList<Project> {
-        val leaderList: MutableList<Project> = mutableListOf()
-        for (a in projectIds) {
-            leaderList.add(getProjectById(a))
-        }
-        return leaderList
+    companion object{
+        val projectsRef: CollectionReference = Firebase.firestore.collection(PROJECTS_COLLECTION_REF)
     }
 
-    override fun endProject(projectId: String) {
-        projectsRef.document(projectId).update("active", false)
+    override suspend fun getProjectList(projectIds: HashMap<String, Boolean>): HashMap<Project, Boolean> {
+        val leaderList: HashMap<Project, Boolean> = hashMapOf()
+        for (a in projectIds) {
+            leaderList[getProjectById(a.key)] = a.value
+        }
+        return leaderList
     }
 
     override fun addProject(
@@ -54,25 +50,18 @@ class ProjectItemsRepository : ItemsRepository {
             id = documentId,
             name = name,
             description = description,
-            active = isActive,
             members = members
         )
         projectsRef
             .document(documentId)
             .set(project)
             .addOnCompleteListener { result ->
-                onComplete.invoke(result.isSuccessful, documentId)
+                onComplete(result.isSuccessful, documentId)
             }
     }
 
     override suspend fun getProjectById(projectId: String): Project {
-        var project = Project()
-        projectsRef
-            .document(projectId)
-            .get()
-            .addOnSuccessListener {
-                project = it?.toObject(Project::class.java) ?: Project()
-            }.await()
-        return project
+        val snapshot = projectsRef.document(projectId).get().await()
+        return snapshot.toObject(Project::class.java) ?: Project()
     }
 }

@@ -4,8 +4,6 @@ import com.example.studentapp.data.Project
 import com.example.studentapp.data.User
 
 data class ProfileUiState(
-    val subordinateProjects: MutableList<Project> = mutableListOf(),
-    val leaderProjects: MutableList<Project> = mutableListOf(),
     val projectName: String = "",
     val projectDescription: String = "",
     val teamName: String = "",
@@ -13,5 +11,10 @@ data class ProfileUiState(
     val tags: List<String> = listOf(),
     val currentProject: Project = Project(),
     val currentUsers: List<User> = listOf(),
-    val mainUser: User = User()
+    val currentUserDetail: User = User(),
+    val currentLastProjectName: String = "",
+    val currentUserLeaderProjects: HashMap<Project, Boolean> = hashMapOf(),
+    val currentUserLeaderProjectIds: HashMap<String, Boolean> = hashMapOf(),
+    val currentUserSubordinateProjects: HashMap<Project, Boolean> = hashMapOf(),
+    val currentUserSubordinateProjectIds: HashMap<String, Boolean> = hashMapOf()
 )

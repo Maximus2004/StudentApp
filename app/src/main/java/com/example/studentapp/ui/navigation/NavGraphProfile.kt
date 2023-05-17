@@ -16,16 +16,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.studentapp.data.Project
-import com.example.studentapp.data.User
-import com.example.studentapp.data.projects
-import com.example.studentapp.data.users
+import com.example.studentapp.data.*
 import com.example.studentapp.ui.*
 import com.example.studentapp.ui.home.TAG
 import com.example.studentapp.ui.profile.ProfileScreen
 import com.example.studentapp.ui.profile.ProfileUiState
 import com.example.studentapp.ui.profile.ProfileViewModel
 import com.example.studentapp.ui.search.ActiveProjectScreen
+import com.example.studentapp.ui.search.AlienProfileScreen
+import com.example.studentapp.ui.search.AlienScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Composable
@@ -33,34 +32,33 @@ fun NavGraphProfile(
     profileViewModel: ProfileViewModel = viewModel(factory = ViewModelProvider.Factory),
     navState: MutableState<Bundle>,
     contentPadding: PaddingValues,
-    userId: String
+    userId: String,
+    isKeyboardOpen: Boolean = false,
+    user: User
 ) {
     val profileUiState = profileViewModel.uiState.collectAsState().value
+    val projectsList = profileViewModel.projectsList.collectAsState().value
     val navController = rememberNavController()
     val context = LocalContext.current
     navController.addOnDestinationChangedListener { navControll, _, _ ->
         navState.value = navControll.saveState() ?: Bundle()
     }
     navController.restoreState(navState.value)
-    if (profileUiState.mainUser == User()) {
-        profileViewModel.getUserById(userId)
-    }
     NavHost(
         navController = navController,
         startDestination = ProfileScreen.route,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(
-            route = ActiveProjectScreen.routeWithArgs,
-            arguments = listOf(navArgument(name = ActiveProjectScreen.projectId) {
-                type = NavType.IntType
-            })
-        ) { backStackEntry ->
+        composable(route = ActiveProjectScreen.route) {
             ActiveProjectScreen(
                 project = profileUiState.currentProject,
                 users = profileUiState.currentUsers,
                 contentPadding = contentPadding,
                 onNavigateBack = { navController.navigateUp() },
+                onClickProfile = {
+                    profileViewModel.setCurrentUserDetail(it)
+                    navController.navigate(AlienScreen.route)
+                }
             )
         }
         composable(route = DetailProjectScreen.route) {
@@ -70,19 +68,31 @@ fun NavGraphProfile(
                 contentPadding = contentPadding
             )
         }
+        composable(route = AlienScreen.route) {
+            AlienProfileScreen(
+                onClickShowProjects = {
+                    profileViewModel.setProjectList(
+                        projectLeaderIds = profileUiState.currentUserDetail.leaderProjects,
+                        projectSubordinateIds = profileUiState.currentUserDetail.subordinateProjects
+                    )
+                    navController.navigate("${DifferentProjects.route}/${true}")
+                },
+                onNavigateBack = { navController.navigateUp() },
+                user = profileUiState.currentUserDetail,
+                contentPadding = contentPadding,
+                textLastProject = profileUiState.currentLastProjectName,
+                isAlienProfile = (profileUiState.currentUserDetail.id != UserAuthRepository.getUserId())
+            )
+        }
         composable(route = ProfileScreen.route) {
             ProfileScreen(
-                onClickShowProjects = {
-                    profileViewModel.fillProjects()
-                    navController.navigate(DifferentProjects.route)
-                },
+                onClickShowProjects = { navController.navigate("${DifferentProjects.route}/${false}") },
                 contentPadding = contentPadding,
-                onClickCreateTeam = {
-                    profileViewModel.fillProjects()
-                    navController.navigate(ChooseProjectScreen.route)
-                },
-                user = profileUiState.mainUser,
-                textLastProject = "Android-приложение для блаблабла"
+                onClickCreateTeam = { navController.navigate(ChooseProjectScreen.route) },
+                user = user,
+                textLastProject = if (projectsList.projects.first.isNotEmpty()) projectsList.projects.first.keys.last().name else "Проектов пока нет",
+                isAlienProfile = true,
+                numberOfProjects = if (projectsList.projects.first.isEmpty() && projectsList.projects.second.isEmpty()) 0 else projectsList.projects.first.size + projectsList.projects.second.size
             )
         }
         composable(route = ChooseProjectScreen.route) {
@@ -91,7 +101,7 @@ fun NavGraphProfile(
                 onClickProject = { navController.navigate("${SearchTeammateScreen.route}/${it}") },
                 onCreateProject = { navController.navigate(ProjectCreationScreen.route) },
                 contentPadding = contentPadding,
-                leaderProjects = profileUiState.leaderProjects,
+                leaderProjects = projectsList.projects.first,
             )
         }
         composable(route = ProjectCreationScreen.route) {
@@ -109,27 +119,35 @@ fun NavGraphProfile(
                 onDescriptionChanged = { profileViewModel.onDescriptionChanged(it) },
                 name = profileUiState.projectName,
                 description = profileUiState.projectDescription,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                isKeyboardOpen = isKeyboardOpen
             )
         }
-        composable(route = DifferentProjects.route) {
+        composable(
+            route = DifferentProjects.routeWithArgs,
+            arguments = listOf(navArgument(name = DifferentProjects.isAlien) {
+                type = NavType.BoolType
+            })
+        ) { backStackEntry ->
+            val isAlien: Boolean = backStackEntry.arguments?.getBoolean(DifferentProjects.isAlien)
+                ?: error("projectId cannot be null")
             DifferentProjectsScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onClickActiveLeaderProject = {
                     profileViewModel.setProjectById(it)
-                    navController.navigate("${MyActiveProjectScreen.route}/${it}")
+                    navController.navigate("${MyActiveProjectScreen.route}/${it.id}")
                 },
                 onClickActiveSubordinateProject = {
                     profileViewModel.setProjectById(it)
-                    navController.navigate("${ActiveProjectScreen.route}/${it}")
+                    navController.navigate(ActiveProjectScreen.route)
                 },
                 onClickNotActiveProject = {
                     profileViewModel.setProjectById(it)
                     navController.navigate(DetailProjectScreen.route)
                 },
                 onClickCreateTeam = { navController.navigate(ProjectCreationScreen.route) },
-                leaderProjects = profileUiState.leaderProjects,
-                subordinateProjects = profileUiState.subordinateProjects,
+                leaderProjects = if (!isAlien) projectsList.projects.first else profileUiState.currentUserLeaderProjects,
+                subordinateProjects = if (!isAlien) projectsList.projects.second else profileUiState.currentUserSubordinateProjects,
                 contentPadding = contentPadding
             )
         }
@@ -139,22 +157,19 @@ fun NavGraphProfile(
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            val projectId: String = backStackEntry.arguments?.getString(MyActiveProjectScreen.projectId)
-                ?: error("projectId cannot be null")
+            val projectId: String =
+                backStackEntry.arguments?.getString(MyActiveProjectScreen.projectId)
+                    ?: error("projectId cannot be null")
             MyActiveProjectScreen(
                 project = profileUiState.currentProject,
                 users = profileUiState.currentUsers,
-                onNavigateBack = {
-                    profileViewModel.resetUsersAndProject()
-                    navController.navigateUp()
-                },
+                onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
-                onCollectPeople = {
-                    profileViewModel.resetUsersAndProject()
-                    navController.navigate("${SearchTeammateScreen.route}/${projectId}")
-                },
-                onEndProject = {
-                    navController.navigate("${EndScreen.route}/${projectId}")
+                onCollectPeople = { navController.navigate("${SearchTeammateScreen.route}/${projectId}") },
+                onEndProject = { navController.navigate("${EndScreen.route}/${projectId}") },
+                onProfileClick = {
+                    profileViewModel.setCurrentUserDetail(it)
+                    navController.navigate(AlienScreen.route)
                 }
             )
         }
@@ -172,7 +187,9 @@ fun NavGraphProfile(
                         context = context,
                         userId = userId,
                         projectId = projectId,
-                        onFinish = { navController.navigate(ProfileScreen.route) }
+                        onFinish = { navController.navigate(ProfileScreen.route) },
+                        leaderAvatar = user.avatar,
+                        leaderName = user.name
                     )
                 },
                 onNavigateBack = { navController.navigateUp() },
@@ -182,13 +199,16 @@ fun NavGraphProfile(
                 onDescriptionChanged = { profileViewModel.onTeamDescriptionChanged(it) },
                 onTagsChanged = { profileViewModel.onTagsChanged(it) },
                 tags = profileUiState.tags,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                isKeyboardOpen = isKeyboardOpen
             )
         }
-        composable(route = EndScreen.routeWithArgs,
+        composable(
+            route = EndScreen.routeWithArgs,
             arguments = listOf(navArgument(name = EndScreen.projectId) {
                 type = NavType.StringType
-            })){ backStackEntry ->
+            })
+        ) { backStackEntry ->
             val projectId = backStackEntry.arguments?.getString(SearchTeammateScreen.projectId)
                 ?: error("projectId cannot be null")
             EndScreen(
@@ -197,7 +217,8 @@ fun NavGraphProfile(
                     navController.navigate(ProfileScreen.route)
                 },
                 onNavigateBack = { navController.navigateUp() },
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                isKeyboardOpen = isKeyboardOpen
             )
         }
     }

@@ -18,17 +18,19 @@ import com.example.studentapp.ui.navigation.NavigationDestination
 
 object DifferentProjects : NavigationDestination {
     override val route: String = "DifferentProjects"
+    const val isAlien = "isAlien"
+    val routeWithArgs: String = "${route}/{$isAlien}"
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun DifferentProjectsScreen(
     onNavigateBack: () -> Unit = {},
-    onClickActiveLeaderProject: (String) -> Unit = {},
-    onClickActiveSubordinateProject: (String) -> Unit = {},
-    onClickNotActiveProject: (String) -> Unit = {},
-    leaderProjects: MutableList<Project>,
-    subordinateProjects: MutableList<Project>,
+    onClickActiveLeaderProject: (Project) -> Unit = {},
+    onClickActiveSubordinateProject: (Project) -> Unit = {},
+    onClickNotActiveProject: (Project) -> Unit = {},
+    leaderProjects: HashMap<Project, Boolean>,
+    subordinateProjects: HashMap<Project, Boolean>,
     onClickCreateTeam: () -> Unit = {},
     isShowingCreationButton: Boolean = true,
     contentPadding: PaddingValues = PaddingValues()
@@ -40,34 +42,34 @@ fun DifferentProjectsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(leaderProjects) { project ->
+                items(leaderProjects.toList()) { project ->
                     ProjectCard(
-                        name = project.name,
+                        name = project.first.name,
                         onClickProject = {
-                            if (project.active) {
-                                if (isShowingCreationButton) onClickActiveLeaderProject(project.id)
-                                else onClickActiveSubordinateProject(project.id)
+                            if (project.second) {
+                                if (isShowingCreationButton) onClickActiveLeaderProject(project.first)
+                                else onClickActiveSubordinateProject(project.first)
                             }
                             else
-                                onClickNotActiveProject(project.id)
+                                onClickNotActiveProject(project.first)
                         },
                         isLeader = true,
-                        isActive = project.active,
-                        projectId = project.id
+                        isActive = project.second,
+                        projectId = project.first.id
                     )
                 }
-                items(subordinateProjects) { project ->
+                items(subordinateProjects.toList()) { project ->
                     ProjectCard(
-                        name = project.name,
+                        name = project.first.name,
                         onClickProject = {
-                            if (project.active)
-                                onClickActiveSubordinateProject(project.id)
+                            if (project.second)
+                                onClickActiveSubordinateProject(project.first)
                             else
-                                onClickNotActiveProject(project.id)
+                                onClickNotActiveProject(project.first)
                         },
                         isLeader = false,
-                        isActive = project.active,
-                        projectId = project.id
+                        isActive = project.second,
+                        projectId = project.first.id
                     )
                 }
             }

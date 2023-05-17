@@ -1,11 +1,15 @@
 package com.example.studentapp.ui
 
+import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,12 +21,16 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,11 +39,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.studentapp.R
 import com.example.studentapp.data.*
 import com.example.studentapp.ui.search.TagItem
 import com.example.studentapp.ui.theme.Red
-import com.example.studentapp.ui.theme.StudentAppTheme
 
 @Composable
 fun TopBar(
@@ -80,14 +89,19 @@ fun MemberCard(member: Pair<String, Boolean>, onProfileClick: () -> Unit, user: 
             .clickable { onProfileClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = user.avatar),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(Uri.parse(user.avatar))
+                .crossfade(true)
+                .build(),
+            contentScale = ContentScale.Crop,
             contentDescription = null,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(55.dp)
                 .clip(CircleShape)
         )
+
         Column() {
             Text(text = user.name + " " + user.surname, style = MaterialTheme.typography.h5)
             Text(text = role, style = MaterialTheme.typography.subtitle2)
@@ -133,11 +147,17 @@ fun BottomNavigationBar(
 }
 
 @Composable
-fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit, leader: User, membersNumber: Int) {
+fun TeamCard(
+    team: Team,
+    modifier: Modifier = Modifier,
+    leaderName: String,
+    members: Int,
+    leaderAvatar: String,
+) {
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = 8.dp,
-        modifier = modifier.clickable { onItemClick() }) {
+        modifier = modifier) {
         Column() {
             Row(
                 modifier = Modifier
@@ -145,17 +165,21 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit,
                     .height(74.dp)
                     .fillMaxWidth()
             ) {
-                Image(
-                    painterResource(id = leader.avatar),
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(Uri.parse(leaderAvatar))
+                        .crossfade(true)
+                        .build(),
+                    contentScale = ContentScale.Crop,
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(start = 16.dp)
                         .size(29.dp)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
                 )
                 Text(
-                    text = leader.name + " " + leader.surname,
+                    text = leaderName,
                     style = TextStyle(
                         fontSize = 20.sp,
                         fontFamily = Red,
@@ -172,7 +196,7 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit,
                     .padding(horizontal = 16.dp)
                     .padding(top = 16.dp)
             ) {
-                Text(text = "Опубликовано 3 дня назад", style = MaterialTheme.typography.subtitle2)
+                Text(text = "Опубликовано ${team.publishDate}", style = MaterialTheme.typography.subtitle2)
                 Text(
                     text = team.name,
                     style = MaterialTheme.typography.h3,
@@ -194,7 +218,7 @@ fun TeamCard(team: Team, modifier: Modifier = Modifier, onItemClick: () -> Unit,
                     lineHeight = 25.sp
                 )
                 Text(
-                    text = "$membersNumber участников",
+                    text = "$members участников",
                     style = MaterialTheme.typography.subtitle2,
                     modifier = Modifier.padding(vertical = 17.dp)
                 )
@@ -231,9 +255,11 @@ fun ProjectCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 25.dp)
         ) {
-            Column(modifier = Modifier
-                .padding(top = 25.dp, bottom = 25.dp)
-                .weight(0.90f)) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 25.dp, bottom = 25.dp)
+                    .weight(0.90f)
+            ) {
                 Text(
                     text = name,
                     style = TextStyle(
@@ -272,12 +298,14 @@ fun TextInput(
     focusRequester: FocusRequester,
     keyboardActions: KeyboardActions,
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-    keyboardTransformation: VisualTransformation = VisualTransformation.None
+    keyboardTransformation: VisualTransformation = VisualTransformation.None,
+    isError: Boolean,
+    modifier: Modifier = Modifier
 ) {
     TextField(
         value = currentValue,
         onValueChange = { onDataChanged(it) },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = 24.dp, end = 24.dp, top = 25.dp)
             .focusRequester(focusRequester),
@@ -293,5 +321,6 @@ fun TextInput(
         keyboardOptions = keyboardOptions,
         visualTransformation = keyboardTransformation,
         keyboardActions = keyboardActions,
+        isError = isError
     )
 }

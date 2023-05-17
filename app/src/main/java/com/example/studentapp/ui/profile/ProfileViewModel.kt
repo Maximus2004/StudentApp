@@ -2,6 +2,7 @@ package com.example.studentapp.ui.profile
 
 import android.content.Context
 import android.icu.text.SimpleDateFormat
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -13,10 +14,7 @@ import com.example.studentapp.ui.home.HomeUiState
 import com.example.studentapp.ui.home.TAG
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
@@ -28,71 +26,86 @@ class ProfileViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState
+    var projectsList: StateFlow<UserProjectsState> = userAuthRepository.fillProjects()
+        .map { UserProjectsState(Pair(it.first.await(), it.second.await())) }
+        .stateIn(
+            scope = viewModelScope,
+            SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = UserProjectsState()
+        )
 
     fun endProject(projectId: String) {
-        projectItemsRepository.endProject(projectId)
-    }
-
-    fun fillProjects() {
-        userAuthRepository.fillProjects { leaderProjects, subordinateProjects ->
-            viewModelScope.launch {
-                _uiState.update {
-                    it.copy(
-                        leaderProjects = projectItemsRepository.getProjectList(leaderProjects),
-                        subordinateProjects = projectItemsRepository.getProjectList(subordinateProjects)
-                    )
-                }
-            }
-        }
-    }
-
-    fun getUserById(userId: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(mainUser = userAuthRepository.getUserById(userId)) }
+            userAuthRepository.endProject(projectId)
         }
     }
 
-    fun resetUsersAndProject() {
-        _uiState.update { it.copy(currentProject = Project(), currentUsers = listOf()) }
-    }
-
-    fun setProjectById(projectId: String) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    currentProject = projectItemsRepository.getProjectById(projectId),
-                    currentUsers = userAuthRepository.getUsersList(uiState.value.currentProject.members.keys.toList())
-                )
-            }
+    fun setCurrentUserDetail(userId: String) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(currentUserDetail = userAuthRepository.getUserById(userId))
+        }
+        _uiState.update {
+            val temp: String? = uiState.value.currentUserDetail.leaderProjects?.keys?.last()
+            it.copy(
+                currentLastProjectName = if (temp != null) projectItemsRepository.getProjectById(temp).name else "Пока нет проектов"
+            )
         }
     }
+
+    fun setProjectList(
+        projectLeaderIds: HashMap<String, Boolean>,
+        projectSubordinateIds: HashMap<String, Boolean>
+    ) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                currentUserLeaderProjects = projectItemsRepository.getProjectList(projectLeaderIds),
+                currentUserSubordinateProjects = projectItemsRepository.getProjectList(projectSubordinateIds)
+            )
+        }
+    }
+
+    fun setProjectById(project: Project) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                currentProject = project,
+                currentUsers = userAuthRepository.getUsersList(project.members.keys.toList())
+            )
+        }
+    }
+
 
     fun validateProjectForm() =
         uiState.value.projectName.isNotBlank() && uiState.value.projectDescription.isNotBlank()
 
     fun addProject(userId: String, context: Context, onFinish: (String) -> Unit) {
-        projectItemsRepository.addProject(
-            userId = userId,
-            name = uiState.value.projectName,
-            description = uiState.value.projectDescription,
-            isActive = true,
-            members = hashMapOf(userId to true)
-        ) { projectAddedStatus, projectId ->
-            if (projectAddedStatus && validateProjectForm()) {
-                Toast.makeText(
-                    context,
-                    "Проект успешно добавлен",
-                    Toast.LENGTH_SHORT
-                ).show()
-                resetProjectState()
-                onFinish(projectId)
-            } else {
-                Toast.makeText(
-                    context,
-                    "Проверьте введённые данные",
-                    Toast.LENGTH_SHORT
-                ).show()
+        try {
+            if (!validateProjectForm()) throw IllegalArgumentException("Заполните все поля")
+            projectItemsRepository.addProject(
+                userId = userId,
+                name = uiState.value.projectName,
+                description = uiState.value.projectDescription,
+                isActive = true,
+                members = hashMapOf(userId to true)
+            ) { projectAddedStatus, projectId ->
+                if (projectAddedStatus) {
+                    Toast.makeText(
+                        context,
+                        "Проект успешно добавлен",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    resetProjectState()
+                    onFinish(projectId)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Проверьте введённые данные",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+        } catch (e: Exception) {
+            Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
         }
     }
 
@@ -107,35 +120,51 @@ class ProfileViewModel(
     fun validateTeamForm() =
         uiState.value.teamName.isNotBlank() && uiState.value.teamDescription.isNotBlank() && uiState.value.tags.isNotEmpty()
 
-    fun addTeam(userId: String, projectId: String, context: Context, onFinish: () -> Unit) {
-        val calendar = Calendar.getInstance()
-        teamItemsRepository.addTeam(
-            name = uiState.value.teamName,
-            description = uiState.value.teamDescription,
-            tags = uiState.value.tags,
-            leader = userId,
-            project = projectId,
-            publishDate = "${calendar.get(Calendar.DAY_OF_MONTH)}.${calendar.get(Calendar.MONTH) + 1}.${
-                calendar.get(
-                    Calendar.YEAR
-                )
-            }"
-        ) { teamAddedStatus ->
-            if (teamAddedStatus && validateTeamForm()) {
-                Toast.makeText(
-                    context,
-                    "Вакансия успешно опбликована",
-                    Toast.LENGTH_SHORT
-                ).show()
-                onFinish()
-                resetTeamState()
-            } else {
-                Toast.makeText(
-                    context,
-                    "Проверьте введённые данные",
-                    Toast.LENGTH_SHORT
-                ).show()
+    fun addTeam(
+        userId: String,
+        projectId: String,
+        context: Context,
+        onFinish: () -> Unit,
+        leaderName: String,
+        leaderAvatar: String
+    ) {
+        try {
+            val calendar = Calendar.getInstance()
+            if (!validateTeamForm()) throw IllegalArgumentException("Заполните все поля")
+            teamItemsRepository.addTeam(
+                name = uiState.value.teamName,
+                description = uiState.value.teamDescription,
+                tags = uiState.value.tags,
+                leaderId = userId,
+                project = projectId,
+                publishDate = "${calendar.get(Calendar.DAY_OF_MONTH)}.${calendar.get(Calendar.MONTH) + 1}.${
+                    calendar.get(
+                        Calendar.YEAR
+                    )
+                }",
+                leaderName = leaderName,
+                members = 1,
+                leaderAvatar = leaderAvatar
+            ) { teamAddedStatus ->
+                if (teamAddedStatus) {
+                    Toast.makeText(
+                        context,
+                        "Вакансия успешно опбликована",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    onFinish()
+                    resetTeamState()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Проверьте введённые данные",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
+        } catch (e: Exception) {
+            Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
         }
     }
 
@@ -166,4 +195,15 @@ class ProfileViewModel(
     fun onTagsChanged(tags: List<String>) {
         _uiState.update { it.copy(tags = tags) }
     }
+
+    companion object {
+        const val TIMEOUT_MILLIS = 5_000L
+    }
 }
+
+data class UserProjectsState(
+    val projects: Pair<HashMap<Project, Boolean>, HashMap<Project, Boolean>> = Pair(
+        hashMapOf(Project() to true),
+        hashMapOf(Project() to true)
+    )
+)

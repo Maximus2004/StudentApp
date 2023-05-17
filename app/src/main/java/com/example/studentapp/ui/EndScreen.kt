@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,13 +37,17 @@ object EndScreen : NavigationDestination {
 fun EndScreen(
     onClickEnd: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
-    contentPadding: PaddingValues = PaddingValues()
+    contentPadding: PaddingValues = PaddingValues(),
+    isKeyboardOpen: Boolean = false
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         Box() {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
-                contentPadding = PaddingValues(top = 15.dp, bottom = contentPadding.calculateBottomPadding() + 75.dp)
+                contentPadding = PaddingValues(
+                    top = 15.dp,
+                    bottom = if (isKeyboardOpen) contentPadding.calculateBottomPadding() + 315.dp else contentPadding.calculateBottomPadding() + 75.dp
+                )
             ) {
                 items(listOf("Алексей Некифоров", "Роман Новиков")) { name ->
                     FeedbackCard(name = name)

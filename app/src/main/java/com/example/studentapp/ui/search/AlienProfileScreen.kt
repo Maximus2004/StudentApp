@@ -33,7 +33,8 @@ fun AlienProfileScreen(
     contentPadding: PaddingValues = PaddingValues(),
     onNavigateBack: () -> Unit,
     textLastProject: String,
-    user: User
+    user: User,
+    isAlienProfile: Boolean
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         LazyVerticalGrid(
@@ -60,13 +61,14 @@ fun AlienProfileScreen(
                     InfoCard(
                         modifier = Modifier.padding(top = 19.dp),
                         onClickShowProjects = onClickShowProjects,
-                        numberOfProjects = user.subordinateProjects!!.size + user.leaderProjects!!.size,
-                        textLastProject = textLastProject
+                        numberOfProjects = if (user.subordinateProjects.isEmpty() && user.leaderProjects.isEmpty()) 0 else user.subordinateProjects.size + user.leaderProjects.size,
+                        textLastProject = textLastProject,
+                        isAlienProfile = isAlienProfile
                     )
-                    Text(text = "Портфолио", style = MaterialTheme.typography.h5)
+                    Text(text = "Портфолио", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 15.dp))
                 }
             }
-            items(photos) { photo ->
+            items(user.portfolio) { photo ->
                 PhotoItem(photo, modifier = Modifier.aspectRatio(1.5f))
             }
         }
@@ -77,6 +79,6 @@ fun AlienProfileScreen(
 @Preview(showBackground = true, showSystemUi = false)
 fun AlienPreview() {
     StudentAppTheme {
-        AlienProfileScreen(onClickShowProjects = {}, onNavigateBack = {}, user = users[0], textLastProject = "Android-приложение для")
+        AlienProfileScreen(onClickShowProjects = {}, onNavigateBack = {}, user = users[0], textLastProject = "Android-приложение для", isAlienProfile = true)
     }
 }

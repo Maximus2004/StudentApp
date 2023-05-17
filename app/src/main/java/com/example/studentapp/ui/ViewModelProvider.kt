@@ -14,7 +14,10 @@ import com.example.studentapp.ui.search.SearchViewModel
 object ViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            StudentViewModel(studentApplication().container.userPreferencesRepository)
+            StudentViewModel(
+                studentApplication().container.userPreferencesRepository,
+                studentApplication().container.userAuthRepository
+            )
         }
         initializer {
             HomeViewModel()
@@ -30,7 +33,11 @@ object ViewModelProvider {
             )
         }
         initializer {
-            SearchViewModel(studentApplication().container.teamItemsRepository)
+            SearchViewModel(
+                studentApplication().container.teamItemsRepository,
+                studentApplication().container.projectItemsRepository,
+                studentApplication().container.userAuthRepository
+            )
         }
         initializer {
             SignInUpViewModel(studentApplication().container.userAuthRepository)

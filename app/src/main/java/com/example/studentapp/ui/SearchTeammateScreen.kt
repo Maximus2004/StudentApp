@@ -50,7 +50,8 @@ fun SearchTeammateScreen(
     onTagsChanged: (List<String>) -> Unit,
     onNameChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
-    contentPadding: PaddingValues = PaddingValues()
+    contentPadding: PaddingValues = PaddingValues(),
+    isKeyboardOpen: Boolean
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -60,9 +61,9 @@ fun SearchTeammateScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .fillMaxHeight()
-                    .padding(bottom = 300.dp)
+                    .padding(bottom = if (isKeyboardOpen) 450.dp else 275.dp)
             ) {
                 Text(text = "Кого вы хотите найти?", style = MaterialTheme.typography.h3)
                 TextField(
@@ -115,10 +116,7 @@ fun SearchTeammateScreen(
                         disabledIndicatorColor = Color.Transparent
                     ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = {
-                        keyboardController?.hide()
-                        onCreateTeammate()
-                    }),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     label = { Text(text = "Основные навыки через пробел") },
                     modifier = Modifier
                         .height(160.dp)
@@ -173,7 +171,8 @@ fun SearchTeammatePreview() {
             onDescriptionChanged = {},
             onTagsChanged = {},
             onNameChanged = {},
-            tags = listOf("sdk", "sjkow", "sas;lw")
+            tags = listOf("sdk", "sjkow", "sas;lw"),
+            isKeyboardOpen = true
         )
     }
 }

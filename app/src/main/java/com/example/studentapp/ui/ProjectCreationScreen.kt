@@ -2,14 +2,18 @@ package com.example.studentapp.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -39,12 +43,20 @@ fun ProjectCreationScreen(
     description: String,
     onCreateTeam: () -> Unit,
     onNavigateBack: () -> Unit,
-    contentPadding: PaddingValues = PaddingValues()
+    contentPadding: PaddingValues = PaddingValues(),
+    isKeyboardOpen: Boolean = false
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester3 = remember { FocusRequester() }
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
-        Box() {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = if (isKeyboardOpen) 240.dp else 0.dp)
+            ) {
                 Text(text = "Создание проекта", style = MaterialTheme.typography.h3)
                 TextField(
                     singleLine = true,
@@ -56,8 +68,8 @@ fun ProjectCreationScreen(
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
                     ),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onSearch = { onCreateTeam() }),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { focusRequester3.requestFocus() }),
                     label = { Text(text = "Введите название проекта") },
                     modifier = Modifier
                         .padding(18.dp)
@@ -76,15 +88,13 @@ fun ProjectCreationScreen(
                         disabledIndicatorColor = Color.Transparent
                     ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = {
-                        keyboardController?.hide()
-                        onCreateTeam()
-                    }),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     label = { Text(text = "Опишите своё будущее детище") },
                     modifier = Modifier
                         .height(160.dp)
                         .fillMaxWidth()
-                        .padding(horizontal = 17.dp),
+                        .padding(horizontal = 17.dp)
+                        .focusRequester(focusRequester3),
                     shape = RoundedCornerShape(8.dp)
                 )
             }

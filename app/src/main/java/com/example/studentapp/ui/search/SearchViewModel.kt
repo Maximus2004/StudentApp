@@ -1,37 +1,71 @@
 package com.example.studentapp.ui.search
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studentapp.data.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class SearchViewModel(private val teamItemsRepository: TeamRepository) : ViewModel() {
+class SearchViewModel(
+    private val teamItemsRepository: TeamRepository,
+    private val projectItemsRepository: ItemsRepository,
+    private val userAuthRepository: AuthRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
+    private val _teamsList: MutableStateFlow<Response> = MutableStateFlow(Response.Loading)
+    val teamsList: StateFlow<Response> = _teamsList.asStateFlow()
 
-    init {
-        getTeamsList()
+    fun setSearchState(searchText: Pair<String, Int>) = viewModelScope.launch {
+        teamItemsRepository.getTeams(searchText).collect { response ->
+            _teamsList.update { response }
+        }
     }
 
-//    fun fillProjects(userId: Int) {
-//        _uiState.update {
-//            it.copy(
-//                subordinateProjects = teamItemsRepository.getSubordinateProjectList(userId),
-//                leaderProjects = teamItemsRepository.getLeaderProjectList(userId)
-//            )
-//        }
-//    }
-    fun getTeamsList() {
-        _uiState.update { it.copy(currentTeamsList = teamItemsRepository.getTeams()) }
+    fun setTeamById(teamId: String) = viewModelScope.launch {
+        _uiState.update { it.copy(currentTeam = teamItemsRepository.getTeamById(teamId)) }
     }
-    fun getTeamById(teamId: Int): Team {
-        return teamItemsRepository.getTeamById(teamId)
+
+    fun setProjectById(projectId: String) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                currentProject = projectItemsRepository.getProjectById(projectId),
+            )
+        }
+        _uiState.update {
+            it.copy(
+                currentUsers = userAuthRepository.getUsersList(_uiState.value.currentProject.members.keys.toList())
+            )
+        }
     }
-    fun getUserById(leaderId: Int): User {
-        return teamItemsRepository.getLeaderById(leaderId)
+
+    fun setCurrentUserDetail(userId: String) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(currentUserDetail = userAuthRepository.getUserById(userId))
+        }
+        _uiState.update {
+            it.copy(
+                currentLastProjectName = projectItemsRepository.getProjectById(uiState.value.currentUserDetail.leaderProjects.keys.last()).name
+            )
+        }
     }
-    fun getProjectById(projectId: Int): Project {
-        return teamItemsRepository.getProjectById(projectId)
+
+    fun setProjectList(
+        projectLeaderIds: HashMap<String, Boolean>,
+        projectSubordinateIds: HashMap<String, Boolean>
+    ) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                currentUserLeaderProjects = projectItemsRepository.getProjectList(projectLeaderIds),
+                currentUserSubordinateProjects = projectItemsRepository.getProjectList(projectSubordinateIds)
+            )
+        }
+    }
+
+    companion object {
+        const val TIMEOUT_MILLIS = 5_000L
     }
 }
+
+data class TeamState(val teams: List<Team> = listOf())

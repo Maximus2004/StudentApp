@@ -1,5 +1,6 @@
 package com.example.studentapp.ui.profile
 
+import android.net.Uri
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -20,9 +21,16 @@ import com.example.studentapp.data.photos
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.studentapp.data.User
 import com.example.studentapp.data.users
 import com.example.studentapp.ui.navigation.NavigationDestination
@@ -33,11 +41,13 @@ object ProfileScreen : NavigationDestination {
 
 @Composable
 fun ProfileScreen(
+    isAlienProfile: Boolean,
     onClickShowProjects: () -> Unit,
     onClickCreateTeam: () -> Unit,
     user: User,
     textLastProject: String,
     contentPadding: PaddingValues = PaddingValues(),
+    numberOfProjects: Int
 ) {
     Box() {
         LazyVerticalGrid(
@@ -73,13 +83,14 @@ fun ProfileScreen(
                     InfoCard(
                         modifier = Modifier.padding(top = 19.dp),
                         onClickShowProjects = onClickShowProjects,
-                        numberOfProjects = user.leaderProjects.size + user.subordinateProjects.size,
-                        textLastProject = textLastProject
+                        numberOfProjects = numberOfProjects,
+                        textLastProject = textLastProject,
+                        isAlienProfile = isAlienProfile
                     )
                     Text(text = "Портфолио", style = MaterialTheme.typography.h5)
                 }
             }
-            items(photos) { photo ->
+            items(user.portfolio) { photo ->
                 PhotoItem(photo, modifier = Modifier.aspectRatio(1.5f))
             }
         }
@@ -107,26 +118,36 @@ fun ProfileScreen(
 }
 
 
-fun LazyGridScope.header(
-    content: @Composable LazyGridItemScope.() -> Unit
-) {
+fun LazyGridScope.header(content: @Composable LazyGridItemScope.() -> Unit) {
     item(span = { GridItemSpan(this.maxLineSpan) }, content = content)
 }
 
 @Composable
-fun PhotoItem(photo: Int, modifier: Modifier = Modifier) {
+fun PhotoItem(photo: String, modifier: Modifier = Modifier) {
     Card(modifier = modifier, elevation = 10.dp, shape = RoundedCornerShape(10.dp)) {
-        Image(
-            painter = painterResource(id = photo),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(Uri.parse(photo))
+                .crossfade(true)
+                .build(),
+            contentScale = ContentScale.FillWidth,
+            placeholder = rememberVectorPainter(image = Icons.Filled.Autorenew),
             contentDescription = null,
-            modifier = Modifier.padding(10.dp),
-            contentScale = ContentScale.FillWidth
+            modifier = Modifier
+                .padding(10.dp)
+                .clip(RectangleShape),
         )
     }
 }
 
 @Composable
-fun InfoCard(modifier: Modifier = Modifier, onClickShowProjects: () -> Unit, numberOfProjects: Int = 0, textLastProject: String) {
+fun InfoCard(
+    modifier: Modifier = Modifier,
+    onClickShowProjects: () -> Unit,
+    numberOfProjects: Int = 0,
+    textLastProject: String,
+    isAlienProfile: Boolean
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -181,39 +202,48 @@ fun InfoCard(modifier: Modifier = Modifier, onClickShowProjects: () -> Unit, num
                     .height(16.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            Button(
-                onClick = { onClickShowProjects() },
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD8CEFF)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 14.dp)
-                    .padding(horizontal = 5.dp)
-            ) {
-                Text(
-                    text = "Смотреть",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    style = TextStyle(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp,
-                        color = Color(0xFF120E21),
-                        fontFamily = Red
+            if (isAlienProfile) {
+                Button(
+                    onClick = { onClickShowProjects() },
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD8CEFF)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 14.dp)
+                        .padding(horizontal = 5.dp)
+                ) {
+                    Text(
+                        text = "Смотреть",
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        style = TextStyle(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp,
+                            color = Color(0xFF120E21),
+                            fontFamily = Red
+                        )
                     )
-                )
+                }
             }
         }
     }
 }
 
 @Composable
-fun UserCard(modifier: Modifier = Modifier, name: String, avatar: Int = R.drawable.unknown_avatar) {
+fun UserCard(modifier: Modifier = Modifier, name: String, avatar: String) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Image(
-            painter = painterResource(id = avatar),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(Uri.parse(avatar))
+                .crossfade(true)
+                .build(),
+            contentScale = ContentScale.Crop,
             contentDescription = null,
-            modifier = Modifier.padding(end = 10.dp).width(64.dp).height(64.dp).clip(CircleShape)
+            modifier = Modifier
+                .padding(end = 10.dp)
+                .size(64.dp)
+                .clip(CircleShape)
         )
         Text(text = name, style = MaterialTheme.typography.h3)
     }
@@ -227,7 +257,9 @@ fun ProfileScreenPreview() {
             onClickShowProjects = {},
             onClickCreateTeam = {},
             user = users[0],
-            textLastProject = "Android-приложение для организаци"
+            textLastProject = "Android-приложение для организаци",
+            isAlienProfile = false,
+            numberOfProjects = 0
         )
     }
 }

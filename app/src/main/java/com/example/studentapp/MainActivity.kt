@@ -15,13 +15,12 @@ import com.example.studentapp.ui.navigation.NavGraphSignInUp
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import com.example.studentapp.ui.StudentApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //WindowCompat.setDecorFitsSystemWindows(window, false) // убирает system bars
-        //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE); // чтобы можно было под клавой ui видеть
         setContent {
             StudentAppTheme {
                 StudentApp()

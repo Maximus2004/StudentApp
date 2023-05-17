@@ -1,5 +1,7 @@
 package com.example.studentapp.ui.search
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +25,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -30,19 +34,34 @@ import com.example.studentapp.data.*
 import com.example.studentapp.ui.TeamCard
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 object SearchScreen : NavigationDestination {
     override val route: String = "SearchScreen"
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatDate(dateString: String): String {
+    val formatter = DateTimeFormatter.ofPattern("d.M.yyyy", Locale.getDefault())
+    val date = LocalDate.parse(dateString, formatter)
+    val monthFormatter = DateTimeFormatter.ofPattern("MMMM", Locale.getDefault())
+    val monthName = date.format(monthFormatter)
+    val day = date.dayOfMonth
+    return "$day $monthName"
+}
+
 @Composable
 fun SearchScreen(
-    onItemClick: (Int) -> Unit,
-    getLeaderById: (Int) -> User,
-    getProjectById: (Int) -> Project,
+    onItemClick: (String) -> Unit,
     teams: List<Team>,
     contentPadding: PaddingValues = PaddingValues(),
+    searchText: String,
+    onChooseFilter: (Int) -> Unit,
+    onSearchChanged: (String) -> Unit,
 ) {
+    var isShowDialog by remember { mutableStateOf(false) }
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,34 +69,104 @@ fun SearchScreen(
         contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 15.dp)
     ) {
         item {
-            SearchCard()
+            SearchCard(onFilterClick = { isShowDialog = true }, searchText, onSearchChanged)
         }
         items(teams) { team ->
             TeamCard(
                 team = team,
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .padding(horizontal = 10.dp),
-                onItemClick = { onItemClick(0) },
-                leader = getLeaderById(0),
-                membersNumber = getProjectById(0).members.size
+                    .padding(horizontal = 10.dp)
+                    .clickable { onItemClick(team.id) },
+                leaderName = team.leaderName,
+                leaderAvatar = team.leaderAvatar,
+                members = team.members
             )
         }
+    }
+    if (isShowDialog) {
+        AlertDialogFilter(
+            onClickButton = { isShowDialog = false },
+            onChooseFilter = { onChooseFilter(it) })
     }
 }
 
 @Composable
-fun SearchCard() {
+fun AlertDialogFilter(onClickButton: () -> Unit, onChooseFilter: (Int) -> Unit) {
+    var firstFilter by remember { mutableStateOf(false) }
+    var secondFilter by remember { mutableStateOf(false) }
+    var thirdFilter by remember { mutableStateOf(false) }
+    AlertDialog(
+        shape = RoundedCornerShape(11.dp),
+        onDismissRequest = { onClickButton() },
+        title = { Text(text = "Выберите фильтр") },
+        text = {
+            Column() {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = firstFilter,
+                        onClick = {
+                            onChooseFilter(1)
+                            firstFilter = true
+                            secondFilter = false
+                            thirdFilter = false
+                        }
+                    )
+                    Text(text = "По имени (по алфавиту)")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = secondFilter,
+                        onClick = {
+                            onChooseFilter(2)
+                            firstFilter = false
+                            secondFilter = true
+                            thirdFilter = false
+                        }
+                    )
+                    Text(text = "По дате (сначала давние)")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = thirdFilter,
+                        onClick = {
+                            onChooseFilter(3)
+                            firstFilter = false
+                            secondFilter = false
+                            thirdFilter = true
+                        }
+                    )
+                    Text(text = "По дате (сначала новые)")
+                }
+            }
+        },
+        buttons = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
+            ) {
+                Button(onClick = { onClickButton() }, shape = RoundedCornerShape(10.dp)) {
+                    Text("Применить")
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun SearchCard(onFilterClick: () -> Unit, searchText: String, onSearchChanged: (String) -> Unit) {
     Text(
         text = "Поиск",
         style = MaterialTheme.typography.overline,
         modifier = Modifier.padding(top = 56.dp, start = 16.dp, bottom = 24.dp)
     )
-    SearchField(onClickSearchButton = {})
+    SearchField(searchText, onSearchChanged)
     Row(
         modifier = Modifier
             .padding(start = 24.dp, top = 33.dp, bottom = 32.dp)
-            .clickable { }
+            .clickable { onFilterClick() }
     ) {
         Image(
             painterResource(id = R.drawable.filters),
@@ -115,9 +204,10 @@ fun TagItem(text: String) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchField(onClickSearchButton: () -> Unit) {
-    var search by remember { mutableStateOf("") }
+fun SearchField(searchText: String, onSearchChanged: (String) -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     Surface(
         elevation = 8.dp,
         modifier = Modifier
@@ -128,10 +218,10 @@ fun SearchField(onClickSearchButton: () -> Unit) {
     ) {
         TextField(
             singleLine = true,
-            value = search,
-            onValueChange = { search = it },
+            value = searchText,
+            onValueChange = { onSearchChanged(it) },
             trailingIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = { keyboardController?.hide() }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
@@ -147,7 +237,7 @@ fun SearchField(onClickSearchButton: () -> Unit) {
                 disabledIndicatorColor = Color.Transparent
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { onClickSearchButton() }),
+            keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 fontFamily = Red,

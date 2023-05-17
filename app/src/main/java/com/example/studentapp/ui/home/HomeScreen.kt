@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studentapp.data.User
 import com.example.studentapp.ui.BottomNavigationBar
 import com.example.studentapp.ui.ViewModelProvider
 import com.example.studentapp.ui.message.MessageViewModel
@@ -21,7 +22,9 @@ const val TAG = "QWERTY"
 
 @Composable
 fun HomeScreen(
+    user: User,
     userId: String,
+    isKeyboardOpen: Boolean = false,
     homeViewModel: HomeViewModel = viewModel(factory = ViewModelProvider.Factory),
     messageViewModel: MessageViewModel = viewModel(factory = ViewModelProvider.Factory)
 ) {
@@ -37,16 +40,17 @@ fun HomeScreen(
                     onTabPressed = { homeViewModel.updateCurrentPage(pageType = it) },
                     navigationItemContentList = navigationItemContentList
                 )
-            } else {
+            } else
                 SendMessage(onClickSendButton = {})
-            }
         }
     ) { contentPadding ->
         when (homeUiState.currentPage) {
             PageType.Profile -> NavGraphProfile(
                 navState = navStateProfile,
                 contentPadding = contentPadding,
-                userId = userId
+                userId = userId,
+                isKeyboardOpen = isKeyboardOpen,
+                user = user
             )
             PageType.Search -> NavGraphSearch(
                 navState = navStateSearch,

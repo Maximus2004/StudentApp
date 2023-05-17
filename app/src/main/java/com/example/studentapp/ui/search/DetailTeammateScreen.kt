@@ -37,11 +37,10 @@ object DetailTeammateScreen : NavigationDestination {
 @Composable
 fun DetailTeammateScreen(
     team: Team,
-    onClickShowProject: (Int) -> Unit,
+    onClickShowProject: (String) -> Unit,
     onClickReply: () -> Unit,
     onNavigateBack: () -> Unit,
-    getLeaderById: (Int) -> User,
-    membersNumber: Int,
+    members: Int,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(
@@ -61,16 +60,16 @@ fun DetailTeammateScreen(
                         modifier = Modifier
                             .padding(bottom = 8.dp, top = 18.dp)
                             .padding(horizontal = 10.dp),
-                        onItemClick = {},
-                        leader = getLeaderById(0),
-                        membersNumber = membersNumber
+                        leaderName = team.name,
+                        leaderAvatar = team.leaderAvatar,
+                        members = members
                     )
                     Card(
                         modifier = Modifier
                             .height(100.dp)
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .clickable { onClickShowProject(0) },
+                            .clickable { onClickShowProject(team.project) },
                         shape = RoundedCornerShape(8.dp),
                         elevation = 4.dp
                     ) {
@@ -119,20 +118,5 @@ fun DetailTeammateScreen(
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DetailTeammateScreenPreview() {
-    StudentAppTheme {
-        DetailTeammateScreen(
-            team = teams[0],
-            onClickShowProject = {},
-            onClickReply = {},
-            onNavigateBack = {},
-            getLeaderById = { users[0] },
-            membersNumber = 3
-        )
     }
 }

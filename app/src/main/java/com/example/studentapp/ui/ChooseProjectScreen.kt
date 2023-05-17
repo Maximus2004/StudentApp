@@ -23,7 +23,7 @@ fun ChooseProjectScreen(
     onNavigateBack: () -> Unit,
     onClickProject: (String) -> Unit,
     onCreateProject: () -> Unit,
-    leaderProjects: MutableList<Project>,
+    leaderProjects: HashMap<Project, Boolean>,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -45,11 +45,11 @@ fun ChooseProjectScreen(
                         )
                     }
                 }
-                items(leaderProjects) { project ->
-                    if (project.active)
+                items(leaderProjects.toList()) { project ->
+                    if (project.second)
                         ProjectCard(
-                            name = project.name,
-                            projectId = project.id,
+                            name = project.first.name,
+                            projectId = project.first.id,
                             onClickProject = onClickProject,
                             isActive = true,
                             isLeader = true

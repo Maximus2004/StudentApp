@@ -1,11 +1,13 @@
 package com.example.studentapp.ui.signinup
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
@@ -13,15 +15,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat.startActivityForResult
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.example.studentapp.R
 import com.example.studentapp.ui.TextInput
+import com.example.studentapp.ui.home.TAG
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.StudentAppTheme
 
@@ -32,6 +43,7 @@ object SignUpScreen : NavigationDestination {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUpScreen(
+    isKeyboardOpen: Boolean,
     onClickAuthButton: () -> Unit,
     onClickRegisterButton: () -> Unit,
     onNameChanged: (String) -> Unit,
@@ -43,7 +55,15 @@ fun SignUpScreen(
     surname: String,
     email: String,
     password: String,
-    description: String
+    description: String,
+    isNameError: Boolean,
+    isSurnameError: Boolean,
+    isPasswordError: Boolean,
+    isDescriptionError: Boolean,
+    isEmailError: Boolean,
+    onClickUploadAvatar: () -> Unit,
+    avatar: Response,
+    onClickUploadPortfolio: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -55,7 +75,8 @@ fun SignUpScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = if (isKeyboardOpen) 240.dp else 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Card(
@@ -66,7 +87,6 @@ fun SignUpScreen(
                 shape = MaterialTheme.shapes.medium,
                 elevation = 13.dp
             ) {
-
                 val focusRequester1 = remember { FocusRequester() }
                 val focusRequester2 = remember { FocusRequester() }
                 val focusRequester3 = remember { FocusRequester() }
@@ -77,58 +97,38 @@ fun SignUpScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "Регистрация",
-                        modifier = Modifier
-                            .padding(top = 32.dp),
+                        modifier = Modifier.padding(top = 32.dp),
                         style = MaterialTheme.typography.h2
                     )
-                    TextInput(
-                        onDataChanged = { onNameChanged(it) },
-                        currentValue = name,
-                        inputHint = "Имя",
-                        keyboardActions = KeyboardActions(onNext = {
-                            focusRequester2.requestFocus()
-                        }),
-                        focusRequester = focusRequester1,
-                    )
-                    TextInput(
-                        onDataChanged = { onSurnameChanged(it) },
-                        currentValue = surname,
-                        inputHint = "Фамилия",
-                        keyboardActions = KeyboardActions(onNext = {
-                            focusRequester3.requestFocus()
-                        }),
-                        focusRequester = focusRequester2,
-                    )
-                    TextInput(
-                        onDataChanged = { onEmailChanged(it) },
-                        currentValue = email,
-                        inputHint = "Почта",
-                        keyboardActions = KeyboardActions(onNext = {
-                            focusRequester4.requestFocus()
-                        }),
-                        focusRequester = focusRequester3,
-
+                    when (avatar) {
+                        is Response.Default -> Image(
+                            painter = painterResource(id = R.drawable.unknown_avatar),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(top = 22.dp)
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .clickable { onClickUploadAvatar() }
                         )
-                    TextInput(
-                        onDataChanged = { onPasswordChanged(it) },
-                        currentValue = password,
-                        inputHint = "Пароль", keyboardActions = KeyboardActions(onNext = {
-                            focusRequester5.requestFocus()
-                        }), focusRequester = focusRequester4,
-                        keyboardTransformation = PasswordVisualTransformation()
-                    )
-                    TextInput(
-                        onDataChanged = { onDescriptionChanged(it) },
-                        currentValue = description,
-                        inputHint = "Расскажите о себе",
-                        keyboardActions = KeyboardActions(onDone = {
-                            keyboardController?.hide()
-                        }),
-                        focusRequester = focusRequester5,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    )
+                        is Response.Loading -> CircularProgressIndicator(modifier = Modifier.padding(top = 22.dp))
+                        is Response.Success ->
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(avatar.avatarUri)
+                                    .crossfade(true)
+                                    .build(),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 22.dp)
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .clickable { onClickUploadAvatar() }
+                            )
+                        is Response.Error -> Text(text = "Ваша фоточка слишком красивая для этого приложения")
+                    }
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = { onClickUploadPortfolio() },
                         shape = MaterialTheme.shapes.medium,
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = MaterialTheme.colors.secondary,
@@ -136,7 +136,7 @@ fun SignUpScreen(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 24.dp, end = 24.dp, top = 25.dp, bottom = 25.dp)
+                            .padding(start = 24.dp, end = 24.dp, top = 25.dp)
                     ) {
                         Row(modifier = Modifier.padding(vertical = 10.dp)) {
                             Text(
@@ -153,8 +153,55 @@ fun SignUpScreen(
                             )
                         }
                     }
-
-
+                    TextInput(
+                        onDataChanged = { onNameChanged(it) },
+                        currentValue = name,
+                        inputHint = "Имя*",
+                        keyboardActions = KeyboardActions(onNext = {
+                            focusRequester2.requestFocus()
+                        }),
+                        focusRequester = focusRequester1,
+                        isError = isNameError
+                    )
+                    TextInput(
+                        onDataChanged = { onSurnameChanged(it) },
+                        currentValue = surname,
+                        inputHint = "Фамилия*",
+                        keyboardActions = KeyboardActions(onNext = {
+                            focusRequester3.requestFocus()
+                        }),
+                        focusRequester = focusRequester2,
+                        isError = isSurnameError
+                    )
+                    TextInput(
+                        onDataChanged = { onEmailChanged(it) },
+                        currentValue = email,
+                        inputHint = "Почта*",
+                        keyboardActions = KeyboardActions(onNext = {
+                            focusRequester4.requestFocus()
+                        }),
+                        focusRequester = focusRequester3,
+                        isError = isEmailError
+                    )
+                    TextInput(
+                        onDataChanged = { onPasswordChanged(it) },
+                        currentValue = password,
+                        inputHint = "Пароль*", keyboardActions = KeyboardActions(onNext = {
+                            focusRequester5.requestFocus()
+                        }), focusRequester = focusRequester4,
+                        keyboardTransformation = PasswordVisualTransformation(),
+                        isError = isPasswordError
+                    )
+                    TextInput(
+                        onDataChanged = { onDescriptionChanged(it) },
+                        currentValue = description,
+                        inputHint = "Расскажите о себе*",
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                        focusRequester = focusRequester5,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        isError = isDescriptionError,
+                        modifier = Modifier.padding(bottom = 25.dp)
+                    )
                 }
             }
             Row(modifier = Modifier.padding(top = 30.dp)) {
@@ -170,7 +217,7 @@ fun SignUpScreen(
             Button(
                 onClick = { onClickRegisterButton() },
                 modifier = Modifier
-                    .padding(top = 20.dp, bottom = 113.dp)
+                    .padding(top = 20.dp, bottom = 93.dp)
                     .size(width = 263.dp, height = 54.dp),
                 shape = RoundedCornerShape(30.dp)
             ) {
