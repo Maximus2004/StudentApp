@@ -15,5 +15,4 @@ data class SignInUpUiState(
     val descriptionError: Boolean = false,
     val selectedImageUri: Uri? = null,
     val portfolio: List<String> = listOf(),
-    val isPortfolioLoading: Boolean = false
 )

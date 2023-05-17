@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.studentapp.data.Message
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
@@ -38,6 +39,8 @@ object ChattingScreen : NavigationDestination {
 
 @Composable
 fun MessageTopBar(
+    name: String,
+    surname: String,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -82,7 +85,7 @@ fun MessageTopBar(
                     modifier = Modifier.size(29.dp)
                 )
                 Text(
-                    text = "Дмитриев Максим",
+                    text = "$name $surname",
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         fontSize = 25.sp,
@@ -91,28 +94,28 @@ fun MessageTopBar(
                     modifier = Modifier.padding(start = 13.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Box {
-                    IconButton(
-                        onClick = { menuExpanded = !menuExpanded },
-                        modifier = Modifier.padding(top = 5.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = null
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        Text(
-                            text = "Принять в команду",
-                            fontSize = 18.sp,
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .clickable { menuExpanded = false })
-                    }
-                }
+//                Box {
+//                    IconButton(
+//                        onClick = { menuExpanded = !menuExpanded },
+//                        modifier = Modifier.padding(top = 5.dp)
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.MoreVert,
+//                            contentDescription = null
+//                        )
+//                    }
+//                    DropdownMenu(
+//                        expanded = menuExpanded,
+//                        onDismissRequest = { menuExpanded = false }
+//                    ) {
+//                        Text(
+//                            text = "Принять в команду",
+//                            fontSize = 18.sp,
+//                            modifier = Modifier
+//                                .padding(10.dp)
+//                                .clickable { menuExpanded = false })
+//                    }
+//                }
             }
         }
     }
@@ -120,41 +123,29 @@ fun MessageTopBar(
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ChattingScreen(onNavigateBack: () -> Unit, contentPadding: PaddingValues = PaddingValues()) {
+fun ChattingScreen(
+    chatList: List<Message>,
+    currentUserId: String,
+    onNavigateBack: () -> Unit,
+    contentPadding: PaddingValues = PaddingValues(),
+    currentUserName: String,
+    currentUserSurname: String
+) {
     Scaffold(
-        topBar = { MessageTopBar(onNavigateBack = { onNavigateBack() }) }
+        topBar = {
+            MessageTopBar(
+                onNavigateBack = { onNavigateBack() },
+                name = currentUserName,
+                surname = currentUserSurname
+            )
+        },
     ) {
         LazyColumn(
             modifier = Modifier.padding(top = 15.dp, end = 13.dp, start = 13.dp),
             contentPadding = contentPadding
         ) {
-            items(
-                listOf(
-                    Message(
-                        from = false,
-                        text = "Здравствуйте! Очень понравилась идея вашего приложения, хотел бы вступить в команду. Не было большого опыта в разработке подобных приложений, но зато я легко обучаем и не доставлю вам лишних хлопот.",
-                        time = "12:50"
-                    ),
-                    Message(from = true, text = "Вы отлично нам подходите!", time = "13:00"),
-                    Message(
-                        from = false,
-                        text = "Боже мой! Я безумно счастлив! Я буквально с самого рождания мечтал попасть к вам в команду, не могу поверить своим глазам...",
-                        time = "13:01"
-                    ),
-                    Message(from = true, text = "Мы передумали.", time = "15:10"),
-                    Message(
-                        from = false,
-                        text = "Максим, на самом деле я люблю вас! Я хотел попасть в команию только ради вас. Пожалуйста, не отвергайте меня, я хочу быть с вами и провести с вами всю оставшуюся жизнь",
-                        time = "15:11"
-                    ),
-                    Message(
-                        from = true,
-                        text = "Я что для себя по вашему точки в конце каждого предложения ставлю.",
-                        time = "15:20"
-                    )
-                )
-            ) { message ->
-                if (!message.from)
+            items(chatList) { message ->
+                if (currentUserId == message.send)
                     MyMessage(text = message.text, time = message.time)
                 else
                     FromMessage(text = message.text, time = message.time)
@@ -164,14 +155,17 @@ fun ChattingScreen(onNavigateBack: () -> Unit, contentPadding: PaddingValues = P
 }
 
 @Composable
-fun SendMessage(onClickSendButton: () -> Unit) {
+fun SendMessage(onClickSendButton: (String) -> Unit) {
     var message by remember { mutableStateOf("") }
     TextField(
         singleLine = true,
         value = message,
         onValueChange = { message = it },
         trailingIcon = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                onClickSendButton(message)
+                message = ""
+            }) {
                 Icon(
                     imageVector = Icons.Default.Send,
                     contentDescription = null,
@@ -187,7 +181,7 @@ fun SendMessage(onClickSendButton: () -> Unit) {
             disabledIndicatorColor = Color.Transparent
         ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-        keyboardActions = KeyboardActions(onSearch = { onClickSendButton() }),
+        keyboardActions = KeyboardActions(onSearch = { onClickSendButton(message) }),
         modifier = Modifier
             .fillMaxWidth()
             .height(63.dp)
@@ -263,12 +257,6 @@ fun MyMessage(text: String, time: String, modifier: Modifier = Modifier) {
 @Composable
 fun MessageScreenPreview() {
     StudentAppTheme {
-        ChattingScreen(onNavigateBack = {})
+        ChattingScreen(onNavigateBack = {}, chatList = listOf(), currentUserId = "", currentUserSurname = "", currentUserName = "")
     }
 }
-
-data class Message(
-    val from: Boolean,
-    val text: String,
-    val time: String
-)

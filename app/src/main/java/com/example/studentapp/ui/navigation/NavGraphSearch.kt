@@ -44,12 +44,19 @@ fun NavGraphSearch(
             }
             Box(modifier = Modifier.fillMaxSize()) {
                 when (teamsState) {
-                    is Response.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    is Response.Error -> Text(text = teamsState.error, modifier = Modifier.align(Alignment.Center))
+                    is Response.Loading -> CircularProgressIndicator(
+                        modifier = Modifier.align(
+                            Alignment.Center
+                        )
+                    )
+                    is Response.Error -> Text(
+                        text = teamsState.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                     is Response.Success -> SearchScreen(
                         onItemClick = {
                             searchViewModel.setTeamById(it)
-                            navController.navigate("${DetailTeammateScreen.route}/${it}")
+                            navController.navigate(DetailTeammateScreen.route)
                         },
                         contentPadding = contentPadding,
                         teams = teamsState.teamsList,
@@ -60,21 +67,14 @@ fun NavGraphSearch(
                 }
             }
         }
-        composable(
-            route = DetailTeammateScreen.routeWithArgs,
-            arguments = listOf(navArgument(name = DetailTeammateScreen.teamId) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val teamId: String = backStackEntry.arguments?.getString(DetailTeammateScreen.teamId)
-                ?: error("teamId cannot be null")
+        composable(route = DetailTeammateScreen.route) {
             DetailTeammateScreen(
                 team = searchUiState.currentTeam,
                 onClickShowProject = {
                     searchViewModel.setProjectById(it)
                     navController.navigate(ActiveProjectScreen.route)
                 },
-                onClickReply = { navController.navigate("${ReplyScreen.route}/${"team.name"}") },
+                onClickReply = { navController.navigate(ReplyScreen.route) },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
                 members = searchUiState.currentTeam.members
@@ -107,18 +107,22 @@ fun NavGraphSearch(
                 isAlienProfile = (searchUiState.currentUserDetail.id != UserAuthRepository.getUserId())
             )
         }
-        composable(
-            route = ReplyScreen.routeWithArgs,
-            arguments = listOf(navArgument(name = ReplyScreen.teamName) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
+        composable(route = ReplyScreen.route) {
             ReplyScreen(
                 onNavigateBack = { navController.navigateUp() },
-                onClickSendButton = { navController.navigate(SearchScreen.route) },
+                onClickSendButton = {
+                    searchViewModel.addMessage(
+                        text = it,
+                        send = UserAuthRepository.getUserId(),
+                        receive = searchUiState.currentTeam.leaderId,
+                    )
+                    searchViewModel.addSubordinateProject(searchUiState.currentTeam.project)
+                    searchViewModel.addMemberInProject(searchUiState.currentTeam.project)
+                    searchViewModel.increaseTeamNumber(searchUiState.currentTeam.id)
+                    navController.navigate(SearchScreen.route)
+                },
                 contentPadding = contentPadding,
-                teamName = backStackEntry.arguments?.getString(ReplyScreen.teamName)
-                    ?: error("userId cannot be null")
+                teamName = searchUiState.currentTeam.name
             )
         }
         composable(route = DifferentProjects.route) {
@@ -132,20 +136,5 @@ fun NavGraphSearch(
                 isShowingCreationButton = false
             )
         }
-//        composable(
-//            route = DetailProjectScreen.routeWithArgs,
-//            arguments = listOf(navArgument(name = DetailProjectScreen.projectId) {
-//                type = NavType.IntType
-//            })
-//        ) { backStackEntry ->
-//            DetailProjectScreen(
-//                project = searchViewModel.getProjectById(
-//                    backStackEntry.arguments?.getInt(DetailProjectScreen.projectId)
-//                        ?: error("projectId cannot be null")
-//                ),
-//                onNavigateBack = { navController.navigateUp() },
-//                contentPadding = contentPadding
-//            )
-//        }
     }
 }

@@ -1,3 +1,10 @@
 package com.example.studentapp.ui.message
 
-data class MessageUiState(val isShowingHomepage: Boolean = true)
+import com.example.studentapp.data.Message
+import com.example.studentapp.data.User
+
+data class MessageUiState(
+    val isShowingHomepage: Boolean = true,
+    val currentChats: List<User> = listOf(),
+    val currentUserId: String = ""
+)

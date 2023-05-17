@@ -29,8 +29,6 @@ import com.example.studentapp.ui.theme.StudentAppTheme
 
 object DetailTeammateScreen : NavigationDestination {
     override val route: String = "DetailTeammateScreen"
-    const val teamId = "teamId"
-    val routeWithArgs: String = "$route/{$teamId}"
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

@@ -32,7 +32,7 @@ interface TeamRepository {
         tags: List<String>,
         onComplete: (Boolean) -> Unit
     )
-
+    fun increaseTeamNumber(teamId: String)
     fun getTeams(searchText: Pair<String, Int>): Flow<Response>
 }
 
@@ -68,6 +68,13 @@ class TeamItemsRepository : TeamRepository {
 
         awaitClose {
             snapshotStateListener?.remove()
+        }
+    }
+
+    override fun increaseTeamNumber(teamId: String) {
+        teamsRef.document(teamId).get().addOnSuccessListener {
+            val newTeamNumber = it?.toObject(Team::class.java)?.members ?: 0
+            teamsRef.document(teamId).update("members", newTeamNumber + 1)
         }
     }
 

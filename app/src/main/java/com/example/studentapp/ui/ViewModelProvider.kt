@@ -23,7 +23,10 @@ object ViewModelProvider {
             HomeViewModel()
         }
         initializer {
-            MessageViewModel()
+            MessageViewModel(
+                studentApplication().container.messageRepository,
+                studentApplication().container.userAuthRepository
+            )
         }
         initializer {
             ProfileViewModel(
@@ -36,7 +39,8 @@ object ViewModelProvider {
             SearchViewModel(
                 studentApplication().container.teamItemsRepository,
                 studentApplication().container.projectItemsRepository,
-                studentApplication().container.userAuthRepository
+                studentApplication().container.userAuthRepository,
+                studentApplication().container.messageRepository
             )
         }
         initializer {

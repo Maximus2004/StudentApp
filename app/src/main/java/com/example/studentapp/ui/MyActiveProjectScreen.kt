@@ -43,7 +43,7 @@ fun MyActiveProjectScreen(
             ) {
                 item {
                     Text(
-                        text = "Опубликовано 3 дня назад",
+                        text = "Опубликовано 17.5.2023",
                         style = MaterialTheme.typography.subtitle2,
                         modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
                     )

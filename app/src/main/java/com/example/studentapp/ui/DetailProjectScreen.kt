@@ -10,6 +10,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,6 +25,9 @@ import com.example.studentapp.R
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.studentapp.data.*
 import com.example.studentapp.ui.navigation.NavigationDestination
 
@@ -43,37 +47,50 @@ fun DetailProjectScreen(
 ) {
     val state = rememberPagerState()
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
-        Column(verticalArrangement = Arrangement.Top) {
-            HorizontalPager(
-                state = state, count = 3, modifier = Modifier.wrapContentSize(),
-            ) { page ->
-                Card(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    elevation = 8.dp
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.portfolio_example),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillWidth
-                    )
+        LazyColumn(
+            verticalArrangement = Arrangement.Top,
+            contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding())
+        ) {
+            item {
+                Column() {
+                    HorizontalPager(
+                        state = state,
+                        count = project.photos.size,
+                        modifier = Modifier.wrapContentSize(),
+                    ) { page ->
+                        Column() {
+                            Card(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                elevation = 8.dp
+                            ) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(project.photos[page])
+                                        .crossfade(true)
+                                        .build(),
+                                    contentScale = ContentScale.FillWidth,
+                                    contentDescription = null
+                                )
+                            }
+                            DotsIndicator(totalDots = state.pageCount, selectedIndex = state.currentPage)
+                        }
+                    }
                 }
             }
-            DotsIndicator(totalDots = state.pageCount, selectedIndex = state.currentPage)
-            Card(
-                elevation = 50.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(500.dp)
-                    .padding(top = 16.dp),
-                shape = MaterialTheme.shapes.large
-            ) {
-                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding() + 15.dp)) {
-                    item {
+            item {
+                Card(
+                    elevation = 50.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    Column() {
                         Text(
-                            text = "Опубликовано 3 дня назад",
+                            text = "Опубликовано 17.5.2023",
                             style = MaterialTheme.typography.subtitle2,
                             modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
                         )
@@ -94,7 +111,7 @@ fun DetailProjectScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 21.dp)
                         )
-                        FeedBackCard(feedbacks[0])
+                        //FeedBackCard(feedbacks[0])
                     }
                 }
             }

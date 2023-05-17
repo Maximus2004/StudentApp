@@ -16,5 +16,6 @@ data class ProfileUiState(
     val currentUserLeaderProjects: HashMap<Project, Boolean> = hashMapOf(),
     val currentUserLeaderProjectIds: HashMap<String, Boolean> = hashMapOf(),
     val currentUserSubordinateProjects: HashMap<Project, Boolean> = hashMapOf(),
-    val currentUserSubordinateProjectIds: HashMap<String, Boolean> = hashMapOf()
+    val currentUserSubordinateProjectIds: HashMap<String, Boolean> = hashMapOf(),
+    val projectPhotos: List<String> = listOf()
 )

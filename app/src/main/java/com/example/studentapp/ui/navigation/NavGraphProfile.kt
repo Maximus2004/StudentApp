@@ -1,8 +1,11 @@
 package com.example.studentapp.ui.navigation
 
+import android.net.Uri
 import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -44,6 +47,11 @@ fun NavGraphProfile(
         navState.value = navControll.saveState() ?: Bundle()
     }
     navController.restoreState(navState.value)
+    val launcherEnd = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris: List<Uri> ->
+        profileViewModel.setProjectPhotos(uris)
+    }
     NavHost(
         navController = navController,
         startDestination = ProfileScreen.route,
@@ -218,7 +226,8 @@ fun NavGraphProfile(
                 },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
-                isKeyboardOpen = isKeyboardOpen
+                isKeyboardOpen = isKeyboardOpen,
+                onClickDownload = { launcherEnd.launch("image/*") }
             )
         }
     }

@@ -6,11 +6,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studentapp.data.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SearchViewModel(
     private val teamItemsRepository: TeamRepository,
     private val projectItemsRepository: ItemsRepository,
-    private val userAuthRepository: AuthRepository
+    private val userAuthRepository: AuthRepository,
+    private val messageRepository: MessRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
@@ -30,7 +34,7 @@ class SearchViewModel(
     fun setProjectById(projectId: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(
-                currentProject = projectItemsRepository.getProjectById(projectId),
+                currentProject = projectItemsRepository.getProjectById(projectId)
             )
         }
         _uiState.update {
@@ -51,6 +55,36 @@ class SearchViewModel(
         }
     }
 
+    private fun getCurrentTimeFormatted(): String {
+        val currentTime = Timestamp.now().toDate()
+        val format = SimpleDateFormat("HH:mm", Locale.getDefault())
+        return format.format(currentTime)
+    }
+
+    fun addMessage(text: String, send: String, receive: String) {
+        if (text.isNotBlank()) {
+            messageRepository.addMessage(
+                text = text,
+                receive = receive,
+                send = send,
+                time = getCurrentTimeFormatted()
+            )
+            userAuthRepository.addMessage(receive)
+        }
+    }
+
+    fun addSubordinateProject(projectId: String) {
+        userAuthRepository.addSubordinateProject(projectId)
+    }
+
+    fun addMemberInProject(projectId: String) {
+        projectItemsRepository.addMemberInProject(projectId)
+    }
+
+    fun increaseTeamNumber(teamId: String) {
+        teamItemsRepository.increaseTeamNumber(teamId)
+    }
+
     fun setProjectList(
         projectLeaderIds: HashMap<String, Boolean>,
         projectSubordinateIds: HashMap<String, Boolean>
@@ -58,7 +92,9 @@ class SearchViewModel(
         _uiState.update {
             it.copy(
                 currentUserLeaderProjects = projectItemsRepository.getProjectList(projectLeaderIds),
-                currentUserSubordinateProjects = projectItemsRepository.getProjectList(projectSubordinateIds)
+                currentUserSubordinateProjects = projectItemsRepository.getProjectList(
+                    projectSubordinateIds
+                )
             )
         }
     }

@@ -1,13 +1,21 @@
 package com.example.studentapp.data
 
-import android.net.Uri
 import com.example.studentapp.R
 
 data class Project(
     val id: String = "",
     val name: String = "",
     val description: String = "",
-    val members: HashMap<String, Boolean> = hashMapOf("" to true)
+    val members: HashMap<String, Boolean> = hashMapOf("" to true),
+    val photos: List<String> = listOf()
+)
+
+data class Message(
+    val id: String = "",
+    val send: String = "",
+    val text: String = "",
+    val receive: String = "",
+    val time: String = ""
 )
 
 data class User(
@@ -18,7 +26,8 @@ data class User(
     val leaderProjects: HashMap<String, Boolean> = hashMapOf(),
     val subordinateProjects: HashMap<String, Boolean> = hashMapOf(),
     val avatar: String = "",
-    val portfolio: List<String> = listOf()
+    val portfolio: List<String> = listOf(),
+    val message: List<String> = listOf(),
 )
 
 data class Team(

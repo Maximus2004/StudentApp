@@ -61,6 +61,7 @@ interface AuthRepository {
     fun endProject(projectId: String)
     fun setImage(imageUri: Uri): Flow<Response>
     fun uploadProfilePhotos(uris: List<Uri>): Flow<String>
+    fun addMessage(userId: String)
 }
 
 class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
@@ -106,24 +107,6 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
         }
     }
 
-//    override fun uploadProfilePhotos(uris: List<Uri>): Flow<String> = callbackFlow {
-//        var uploadTask: UploadTask? = null
-//        for (imageUri in uris) {
-//            val imageRef = storage.child("images/${imageUri.lastPathSegment}")
-//            uploadTask = imageRef.putFile(imageUri)
-//            uploadTask.addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    imageRef.downloadUrl.addOnSuccessListener { uri ->
-//                        trySend(uri.toString())
-//                    }
-//                }
-//            }
-//        }
-//        awaitClose {
-//            uploadTask?.cancel()
-//        }
-//    }
-
     override fun fillProjects(): Flow<Pair<Deferred<HashMap<Project, Boolean>>, Deferred<HashMap<Project, Boolean>>>> =
         callbackFlow {
             var snapshotStateListener: ListenerRegistration? = null
@@ -150,6 +133,15 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
                 snapshotStateListener?.remove()
             }
         }
+
+    override fun addMessage(userId: String) {
+        usersRef.document(getUserId()).get().addOnSuccessListener {
+            usersRef.document(getUserId()).update("message", FieldValue.arrayUnion(userId))
+        }
+        usersRef.document(userId).get().addOnSuccessListener {
+            usersRef.document(userId).update("message", FieldValue.arrayUnion(getUserId()))
+        }
+    }
 
     override suspend fun getUserById(userId: String): User {
         if (userId.isEmpty()) return User()

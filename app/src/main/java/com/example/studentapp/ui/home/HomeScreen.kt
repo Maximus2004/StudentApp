@@ -8,6 +8,7 @@ import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studentapp.data.User
+import com.example.studentapp.data.UserAuthRepository
 import com.example.studentapp.ui.BottomNavigationBar
 import com.example.studentapp.ui.ViewModelProvider
 import com.example.studentapp.ui.message.MessageViewModel
@@ -30,6 +31,7 @@ fun HomeScreen(
 ) {
     val homeUiState = homeViewModel.uiState.collectAsState().value
     val messageUiState = messageViewModel.uiState.collectAsState().value
+    val chatListState = messageViewModel.messageList.collectAsState().value
     val navStateSearch = remember { mutableStateOf(Bundle()) }
     val navStateProfile = remember { mutableStateOf(Bundle()) }
     Scaffold(
@@ -37,11 +39,14 @@ fun HomeScreen(
             if (messageUiState.isShowingHomepage) {
                 BottomNavigationBar(
                     currentTab = homeUiState.currentPage,
-                    onTabPressed = { homeViewModel.updateCurrentPage(pageType = it) },
+                    onTabPressed = {
+                        if (it == PageType.Message) messageViewModel.setChatsList()
+                        homeViewModel.updateCurrentPage(pageType = it)
+                    },
                     navigationItemContentList = navigationItemContentList
                 )
             } else
-                SendMessage(onClickSendButton = {})
+                SendMessage(onClickSendButton = { messageViewModel.onClickSendButton(it) })
         }
     ) { contentPadding ->
         when (homeUiState.currentPage) {
@@ -58,9 +63,17 @@ fun HomeScreen(
             )
             PageType.Message -> NavGraphMessage(
                 contentPadding = contentPadding,
-                onDialogClick = { messageViewModel.updateCurrentPage() },
+                onDialogClick = {
+                    messageViewModel.setCurrentMessages(it)
+                    messageViewModel.updateCurrentPage()
+                },
                 isShowingHomepage = messageUiState.isShowingHomepage,
-                onNavigateBack = { messageViewModel.updateCurrentPage() }
+                onNavigateBack = { messageViewModel.updateCurrentPage() },
+                chatList = messageUiState.currentChats,
+                messageList = chatListState.messages,
+                currentUserId = UserAuthRepository.getUserId(),
+                name = user.name,
+                surname = user.surname
             )
         }
     }

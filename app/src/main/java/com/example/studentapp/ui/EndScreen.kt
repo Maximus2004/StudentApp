@@ -1,6 +1,9 @@
 package com.example.studentapp.ui
 
 import android.annotation.SuppressLint
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +41,8 @@ fun EndScreen(
     onClickEnd: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
-    isKeyboardOpen: Boolean = false
+    isKeyboardOpen: Boolean = false,
+    onClickDownload: () -> Unit
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         Box() {
@@ -49,12 +53,12 @@ fun EndScreen(
                     bottom = if (isKeyboardOpen) contentPadding.calculateBottomPadding() + 315.dp else contentPadding.calculateBottomPadding() + 75.dp
                 )
             ) {
-                items(listOf("Алексей Некифоров", "Роман Новиков")) { name ->
-                    FeedbackCard(name = name)
-                }
+                //items(listOf("Алексей Некифоров", "Роман Новиков")) { name ->
+                 //   FeedbackCard(name = name)
+                //}
                 item {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = { onClickDownload() },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color(0xFFF2F2F2),
@@ -152,13 +156,5 @@ fun FeedbackCard(name: String) {
             thickness = 1.dp,
             modifier = Modifier.padding(top = 24.dp, start = 12.dp, end = 12.dp)
         )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun EndScreenPreview() {
-    StudentAppTheme {
-        EndScreen()
     }
 }

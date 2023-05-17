@@ -25,15 +25,13 @@ import com.example.studentapp.ui.theme.StudentAppTheme
 
 object ReplyScreen : NavigationDestination {
     override val route: String = "ReplyScreen"
-    const val teamName = "teamName"
-    val routeWithArgs: String = "${route}/{$teamName}"
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ReplyScreen(
     onNavigateBack: () -> Unit,
-    onClickSendButton: () -> Unit,
+    onClickSendButton: (String) -> Unit,
     teamName: String,
     contentPadding: PaddingValues = PaddingValues()
 ) {
@@ -79,7 +77,7 @@ fun ReplyScreen(
                             style = MaterialTheme.typography.button
                         )
                     },
-                    onClick = { onClickSendButton() },
+                    onClick = { onClickSendButton(description) },
                     backgroundColor = Color(0xFF9378FF),
                     modifier = Modifier
                         .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())

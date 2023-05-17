@@ -37,6 +37,17 @@ class ProfileViewModel(
     fun endProject(projectId: String) {
         viewModelScope.launch {
             userAuthRepository.endProject(projectId)
+            projectItemsRepository.endProject(projectId, uiState.value.projectPhotos)
+        }
+    }
+
+    fun setProjectPhotos(uris: List<Uri>) = viewModelScope.launch {
+        userAuthRepository.uploadProfilePhotos(uris).collect { response ->
+            _uiState.update {
+                val temp = uiState.value.projectPhotos.toMutableList()
+                temp.add(response)
+                it.copy(projectPhotos = temp)
+            }
         }
     }
 
@@ -107,10 +118,6 @@ class ProfileViewModel(
             Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
             e.printStackTrace()
         }
-    }
-
-    fun addSubordinateProject(projectId: String) {
-        userAuthRepository.addSubordinateProject(projectId)
     }
 
     fun addLeaderProject(projectId: String) {
