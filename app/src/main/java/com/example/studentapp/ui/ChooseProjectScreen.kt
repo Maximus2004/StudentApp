@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.studentapp.data.Project
 import com.example.studentapp.ui.navigation.NavigationDestination
@@ -45,15 +46,33 @@ fun ChooseProjectScreen(
                         )
                     }
                 }
+                item {
+                    if (leaderProjects.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                text = "Сейчас у вас нет собственных активных проектов",
+                                modifier = Modifier.align(Alignment.Center).padding(10.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
                 items(leaderProjects.toList()) { project ->
-                    if (project.second)
-                        ProjectCard(
-                            name = project.first.name,
-                            projectId = project.first.id,
-                            onClickProject = onClickProject,
-                            isActive = true,
-                            isLeader = true
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = "Сейчас у вас нет собственных активных проектов",
+                            modifier = Modifier.align(Alignment.Center).padding(10.dp),
+                            textAlign = TextAlign.Center
                         )
+                        if (project.second)
+                            ProjectCard(
+                                name = project.first.name,
+                                projectId = project.first.id,
+                                onClickProject = onClickProject,
+                                isActive = true,
+                                isLeader = true
+                            )
+                    }
                 }
             }
             Column(

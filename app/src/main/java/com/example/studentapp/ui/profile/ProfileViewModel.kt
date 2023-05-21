@@ -1,31 +1,32 @@
 package com.example.studentapp.ui.profile
 
 import android.content.Context
-import android.icu.text.SimpleDateFormat
 import android.net.Uri
-import android.os.Build
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studentapp.data.*
-import com.example.studentapp.ui.home.HomeUiState
-import com.example.studentapp.ui.home.TAG
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
 class ProfileViewModel(
     private val projectItemsRepository: ItemsRepository,
     private val teamItemsRepository: TeamRepository,
     private val userAuthRepository: AuthRepository,
+    private val feedbackItemsRepository: FeedbackRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
-    val uiState: StateFlow<ProfileUiState> = _uiState
+    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+    private val _projectPhotos: MutableStateFlow<ImageDownloadStatus> =
+        MutableStateFlow(ImageDownloadStatus.Default)
+    val projectPhotos: StateFlow<ImageDownloadStatus> = _projectPhotos.asStateFlow()
+    var ratingState: StateFlow<Int> = userAuthRepository.listenerToRating()
+        .stateIn(
+            scope = viewModelScope,
+            SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = 0
+        )
     var projectsList: StateFlow<UserProjectsState> = userAuthRepository.fillProjects()
         .map { UserProjectsState(Pair(it.first.await(), it.second.await())) }
         .stateIn(
@@ -34,19 +35,62 @@ class ProfileViewModel(
             initialValue = UserProjectsState()
         )
 
-    fun endProject(projectId: String) {
+    fun endProject(projectId: String, context: Context) {
         viewModelScope.launch {
-            userAuthRepository.endProject(projectId)
+            _projectPhotos.update { ImageDownloadStatus.Loading }
             projectItemsRepository.endProject(projectId, uiState.value.projectPhotos)
+            userAuthRepository.endProject(projectId)
+            userAuthRepository.endSubordinateProjects(
+                projectId,
+                projectItemsRepository.getSubordinateUserList(projectId)
+            )
+            var i = 0
+            for (member in uiState.value.currentProject.members) {
+                if (!member.value) {
+                    feedbackItemsRepository.addFeedback(
+                        text = uiState.value.feedbackList[i],
+                        rate = uiState.value.ratingList[i],
+                        project = uiState.value.currentProject.id,
+                        user = member.key
+                    )
+                    userAuthRepository.setNewFeedback(
+                        feedbackItemsRepository.getNewUserFeedback(
+                            member.key
+                        ), member.key
+                    )
+                }
+                i++
+            }
+            _uiState.update {
+                it.copy(
+                    feedbackList = mutableListOf(),
+                    projectPhotos = mutableListOf(),
+                    ratingList = mutableListOf()
+                )
+            }
+            teamItemsRepository.deleteTeams(projectId)
+            Toast.makeText(context, "Проект успешно завершён", Toast.LENGTH_SHORT).show()
+            _projectPhotos.update { ImageDownloadStatus.Success }
         }
     }
 
-    fun setProjectPhotos(uris: List<Uri>) = viewModelScope.launch {
+    fun setProjectPhotos(uris: List<Uri>, context: Context) = viewModelScope.launch {
+        _projectPhotos.update { ImageDownloadStatus.Loading }
         userAuthRepository.uploadProfilePhotos(uris).collect { response ->
-            _uiState.update {
-                val temp = uiState.value.projectPhotos.toMutableList()
-                temp.add(response)
-                it.copy(projectPhotos = temp)
+            if (!response.second) {
+                _uiState.update {
+                    val temp = uiState.value.projectPhotos.toMutableList()
+                    temp.add(response.first)
+                    it.copy(projectPhotos = temp)
+                }
+            } else {
+                Toast.makeText(context, "Фото проекта успешно загружены", Toast.LENGTH_SHORT).show()
+                _uiState.update {
+                    val temp = uiState.value.projectPhotos.toMutableList()
+                    temp.add(response.first)
+                    it.copy(projectPhotos = temp)
+                }
+                _projectPhotos.update { ImageDownloadStatus.Success }
             }
         }
     }
@@ -56,9 +100,13 @@ class ProfileViewModel(
             it.copy(currentUserDetail = userAuthRepository.getUserById(userId))
         }
         _uiState.update {
-            val temp: String? = uiState.value.currentUserDetail.leaderProjects?.keys?.last()
+            var temp: String? = null
+            if (uiState.value.currentUserDetail.leaderProjects.isNotEmpty())
+                temp = uiState.value.currentUserDetail.leaderProjects.keys.last()
             it.copy(
-                currentLastProjectName = if (temp != null) projectItemsRepository.getProjectById(temp).name else "Пока нет проектов"
+                currentLastProjectName = if (temp != null) projectItemsRepository.getProjectById(
+                    temp
+                ).name else "Пока нет проектов"
             )
         }
     }
@@ -70,7 +118,9 @@ class ProfileViewModel(
         _uiState.update {
             it.copy(
                 currentUserLeaderProjects = projectItemsRepository.getProjectList(projectLeaderIds),
-                currentUserSubordinateProjects = projectItemsRepository.getProjectList(projectSubordinateIds)
+                currentUserSubordinateProjects = projectItemsRepository.getProjectList(
+                    projectSubordinateIds
+                )
             )
         }
     }
@@ -84,6 +134,16 @@ class ProfileViewModel(
         }
     }
 
+    fun setCurrentFeedback(project: Project) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                currentFeedback = feedbackItemsRepository.getFeedback(
+                    projectId = project.id,
+                    user = UserAuthRepository.getUserId()
+                )
+            )
+        }
+    }
 
     fun validateProjectForm() =
         uiState.value.projectName.isNotBlank() && uiState.value.projectDescription.isNotBlank()

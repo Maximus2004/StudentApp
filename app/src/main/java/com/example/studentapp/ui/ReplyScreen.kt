@@ -8,8 +8,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -27,6 +29,7 @@ object ReplyScreen : NavigationDestination {
     override val route: String = "ReplyScreen"
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ReplyScreen(
@@ -35,6 +38,7 @@ fun ReplyScreen(
     teamName: String,
     contentPadding: PaddingValues = PaddingValues()
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(
         topBar = { TopBar(onNavigateBack = { onNavigateBack() }) },
         floatingActionButtonPosition = FabPosition.Center
@@ -57,7 +61,7 @@ fun ReplyScreen(
                     disabledIndicatorColor = Color.Transparent
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { }),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier
                     .height(200.dp)
                     .fillMaxWidth()

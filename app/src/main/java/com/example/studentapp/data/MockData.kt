@@ -28,6 +28,7 @@ data class User(
     val avatar: String = "",
     val portfolio: List<String> = listOf(),
     val message: List<String> = listOf(),
+    val rating: Int = 0
 )
 
 data class Team(
@@ -43,26 +44,14 @@ data class Team(
     val leaderAvatar: String = ""
 )
 
-data class FeedbackInfo(
-    val name: String,
-    val text: String,
-    val rate: Double,
-    val role: Boolean
+data class Feedback(
+    val id: String = "",
+    val user: String = "",
+    val text: String = "",
+    val rate: Int = 0,
+    val project: String = ""
 )
 
-// для отзывов, они будут добавлены позже
-val feedbacks = listOf(
-    FeedbackInfo("Роман Новиков", "Крутой!", 4.5, true),
-    FeedbackInfo("Максим Дмитриев", "Просто вах-вах!", 5.0, false),
-    FeedbackInfo(
-        "Валера Болога",
-        "Да чё тут расписывать, в принципе не буду много писать, просто человек очень хороший и добрый, и душевный",
-        5.0,
-        false
-    )
-)
-
-// для портфолио, оно будет добавлено позже
 val photos = listOf(
     R.drawable.portfolio_example,
     R.drawable.portfolio_example2,

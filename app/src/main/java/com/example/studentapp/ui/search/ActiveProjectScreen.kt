@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,7 +19,6 @@ import com.example.studentapp.ui.navigation.NavigationDestination
 object ActiveProjectScreen : NavigationDestination {
     override val route: String = "ActiveProjectScreen"
     const val projectId = "projectId"
-    val routeWithArgs: String = "$route/{$projectId}"
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -54,6 +54,13 @@ fun ActiveProjectScreen(
                     ),
                     lineHeight = 27.sp
                 )
+            }
+            item {
+                if (project.members.toList().isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                }
             }
             itemsIndexed(project.members.toList()) { index, member ->
                 MemberCard(member = member, onProfileClick = { onClickProfile(member.first) }, user = if (index < users.size) users[index] else User())

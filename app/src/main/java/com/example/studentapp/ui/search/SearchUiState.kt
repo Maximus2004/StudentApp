@@ -5,8 +5,6 @@ import com.example.studentapp.data.Team
 import com.example.studentapp.data.User
 
 data class SearchUiState(
-    //val currentUserSubordinateProjects: List<Project> = listOf(),
-    //val currentUserLeaderProjects: List<Project> = listOf(),
     val currentTeam: Team = Team(),
     val currentProject: Project = Project(),
     val currentUsers: List<User> = listOf(),

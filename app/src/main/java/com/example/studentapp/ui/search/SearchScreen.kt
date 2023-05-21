@@ -243,7 +243,16 @@ fun SearchField(searchText: String, onSearchChanged: (String) -> Unit) {
                 fontFamily = Red,
                 fontWeight = FontWeight.Normal,
                 color = Color(0xFF120E21)
-            )
+            ),
+            placeholder = { Text(text = "Поиск по тегам") }
         )
+    }
+}
+
+@Preview
+@Composable
+fun SearchPreview() {
+    StudentAppTheme {
+        SearchField(searchText = "", onSearchChanged = {})
     }
 }

@@ -33,6 +33,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.studentapp.data.User
 import com.example.studentapp.data.users
+import com.example.studentapp.ui.StarRatingInfo
 import com.example.studentapp.ui.navigation.NavigationDestination
 
 object ProfileScreen : NavigationDestination {
@@ -47,7 +48,8 @@ fun ProfileScreen(
     user: User,
     textLastProject: String,
     contentPadding: PaddingValues = PaddingValues(),
-    numberOfProjects: Int
+    numberOfProjects: Int,
+    rating: Int
 ) {
     Box() {
         LazyVerticalGrid(
@@ -85,7 +87,8 @@ fun ProfileScreen(
                         onClickShowProjects = onClickShowProjects,
                         numberOfProjects = numberOfProjects,
                         textLastProject = textLastProject,
-                        isAlienProfile = isAlienProfile
+                        isAlienProfile = isAlienProfile,
+                        rating = rating
                     )
                     Text(text = "Портфолио", style = MaterialTheme.typography.h5)
                 }
@@ -117,7 +120,6 @@ fun ProfileScreen(
     }
 }
 
-
 fun LazyGridScope.header(content: @Composable LazyGridItemScope.() -> Unit) {
     item(span = { GridItemSpan(this.maxLineSpan) }, content = content)
 }
@@ -133,9 +135,7 @@ fun PhotoItem(photo: String, modifier: Modifier = Modifier) {
             contentScale = ContentScale.FillWidth,
             placeholder = rememberVectorPainter(image = Icons.Filled.Autorenew),
             contentDescription = null,
-            modifier = Modifier
-                .padding(10.dp)
-                .clip(RectangleShape),
+            modifier = Modifier.clip(RectangleShape),
         )
     }
 }
@@ -146,7 +146,8 @@ fun InfoCard(
     onClickShowProjects: () -> Unit,
     numberOfProjects: Int = 0,
     textLastProject: String,
-    isAlienProfile: Boolean
+    isAlienProfile: Boolean,
+    rating: Int
 ) {
     Row(
         modifier = modifier
@@ -194,14 +195,7 @@ fun InfoCard(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 4.dp)
             )
-            Image(
-                painter = painterResource(id = R.drawable.stars),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(16.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
+            StarRatingInfo(rating = rating)
             if (isAlienProfile) {
                 Button(
                     onClick = { onClickShowProjects() },
@@ -259,7 +253,8 @@ fun ProfileScreenPreview() {
             user = users[0],
             textLastProject = "Android-приложение для организаци",
             isAlienProfile = false,
-            numberOfProjects = 0
+            numberOfProjects = 0,
+            rating = 0
         )
     }
 }

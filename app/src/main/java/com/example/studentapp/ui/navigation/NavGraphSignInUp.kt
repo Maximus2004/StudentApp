@@ -9,13 +9,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.studentapp.ui.*
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import com.example.studentapp.ui.home.TAG
+import com.example.studentapp.data.ImageDownloadStatus
 import com.example.studentapp.ui.signinup.*
 
 @Composable
@@ -28,10 +25,11 @@ fun NavGraphSignInUp(
     val navController = rememberNavController()
     val context = LocalContext.current
     val avatar = signInUpViewModel.avatarState.collectAsState().value
+    val portfolio = signInUpViewModel.portfolioState.collectAsState().value
     val launcherPortfolio = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
-        signInUpViewModel.setProfilePhotos(uris)
+        signInUpViewModel.setProfilePhotos(uris, context)
     }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -68,7 +66,7 @@ fun NavGraphSignInUp(
                 isKeyboardOpen = isKeyboardOpen,
                 onClickAuthButton = { navController.navigate(LoginScreen.route) },
                 onClickRegisterButton = {
-                    if (avatar != Response.Loading)
+                    if (avatar != Response.Loading && portfolio != ImageDownloadStatus.Loading)
                         signInUpViewModel.onClickRegisterButton(
                             context,
                             onClickFinishButton
@@ -91,7 +89,8 @@ fun NavGraphSignInUp(
                 isPasswordError = signInUpUiState.passwordError,
                 onClickUploadAvatar = { if (avatar != Response.Loading) launcher.launch("image/*") },
                 avatar = avatar,
-                onClickUploadPortfolio = { launcherPortfolio.launch("image/*") },
+                portfolio = portfolio,
+                onClickUploadPortfolio = { if (portfolio != ImageDownloadStatus.Loading) launcherPortfolio.launch("image/*") },
             )
         }
         composable(route = LogoScreen.route) {

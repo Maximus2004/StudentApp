@@ -31,7 +31,7 @@ fun HomeScreen(
 ) {
     val homeUiState = homeViewModel.uiState.collectAsState().value
     val messageUiState = messageViewModel.uiState.collectAsState().value
-    val chatListState = messageViewModel.messageList.collectAsState().value
+    val messageListState = messageViewModel.messageList.collectAsState().value
     val navStateSearch = remember { mutableStateOf(Bundle()) }
     val navStateProfile = remember { mutableStateOf(Bundle()) }
     Scaffold(
@@ -70,10 +70,11 @@ fun HomeScreen(
                 isShowingHomepage = messageUiState.isShowingHomepage,
                 onNavigateBack = { messageViewModel.updateCurrentPage() },
                 chatList = messageUiState.currentChats,
-                messageList = chatListState.messages,
+                messageList = messageListState.messages,
                 currentUserId = UserAuthRepository.getUserId(),
-                name = user.name,
-                surname = user.surname
+                name = messageUiState.currentUser.name,
+                surname = messageUiState.currentUser.surname,
+                avatar = messageUiState.currentUser.avatar
             )
         }
     }

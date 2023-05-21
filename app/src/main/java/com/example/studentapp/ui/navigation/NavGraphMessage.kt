@@ -17,7 +17,8 @@ fun NavGraphMessage(
     messageList: List<Message>,
     currentUserId: String,
     name: String,
-    surname: String
+    surname: String,
+    avatar: String
 ) {
     if (isShowingHomepage) {
         MessagesScreen(
@@ -32,7 +33,8 @@ fun NavGraphMessage(
             contentPadding = contentPadding,
             chatList = messageList,
             currentUserName = name,
-            currentUserSurname = surname
+            currentUserSurname = surname,
+            currentUserAvatar = avatar
         )
     }
 }

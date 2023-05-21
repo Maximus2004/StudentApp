@@ -41,8 +41,10 @@ fun NavGraphProfile(
 ) {
     val profileUiState = profileViewModel.uiState.collectAsState().value
     val projectsList = profileViewModel.projectsList.collectAsState().value
+    val ratingState = profileViewModel.ratingState.collectAsState().value
     val navController = rememberNavController()
     val context = LocalContext.current
+    val projectPhotos: ImageDownloadStatus = profileViewModel.projectPhotos.collectAsState().value
     navController.addOnDestinationChangedListener { navControll, _, _ ->
         navState.value = navControll.saveState() ?: Bundle()
     }
@@ -50,7 +52,7 @@ fun NavGraphProfile(
     val launcherEnd = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
-        profileViewModel.setProjectPhotos(uris)
+        profileViewModel.setProjectPhotos(uris, context)
     }
     NavHost(
         navController = navController,
@@ -64,8 +66,8 @@ fun NavGraphProfile(
                 contentPadding = contentPadding,
                 onNavigateBack = { navController.navigateUp() },
                 onClickProfile = {
-                    profileViewModel.setCurrentUserDetail(it)
                     navController.navigate(AlienScreen.route)
+                    profileViewModel.setCurrentUserDetail(it)
                 }
             )
         }
@@ -73,7 +75,8 @@ fun NavGraphProfile(
             DetailProjectScreen(
                 project = profileUiState.currentProject,
                 onNavigateBack = { navController.navigateUp() },
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                feedback = profileUiState.currentFeedback,
             )
         }
         composable(route = AlienScreen.route) {
@@ -100,6 +103,7 @@ fun NavGraphProfile(
                 user = user,
                 textLastProject = if (projectsList.projects.first.isNotEmpty()) projectsList.projects.first.keys.last().name else "Проектов пока нет",
                 isAlienProfile = true,
+                rating = ratingState,
                 numberOfProjects = if (projectsList.projects.first.isEmpty() && projectsList.projects.second.isEmpty()) 0 else projectsList.projects.first.size + projectsList.projects.second.size
             )
         }
@@ -117,8 +121,8 @@ fun NavGraphProfile(
                 onCreateTeam = {
                     profileViewModel.addProject(userId, context,
                         onFinish = {
-                            profileViewModel.addLeaderProject(it)
                             navController.navigate("${SearchTeammateScreen.route}/${it}")
+                            profileViewModel.addLeaderProject(it)
                         }
                     )
                 },
@@ -142,21 +146,23 @@ fun NavGraphProfile(
             DifferentProjectsScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onClickActiveLeaderProject = {
-                    profileViewModel.setProjectById(it)
                     navController.navigate("${MyActiveProjectScreen.route}/${it.id}")
+                    profileViewModel.setProjectById(it)
                 },
                 onClickActiveSubordinateProject = {
-                    profileViewModel.setProjectById(it)
                     navController.navigate(ActiveProjectScreen.route)
+                    profileViewModel.setProjectById(it)
                 },
                 onClickNotActiveProject = {
-                    profileViewModel.setProjectById(it)
                     navController.navigate(DetailProjectScreen.route)
+                    profileViewModel.setProjectById(it)
+                    profileViewModel.setCurrentFeedback(it)
                 },
                 onClickCreateTeam = { navController.navigate(ProjectCreationScreen.route) },
                 leaderProjects = if (!isAlien) projectsList.projects.first else profileUiState.currentUserLeaderProjects,
                 subordinateProjects = if (!isAlien) projectsList.projects.second else profileUiState.currentUserSubordinateProjects,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                isShowingCreationButton = true
             )
         }
         composable(
@@ -176,8 +182,8 @@ fun NavGraphProfile(
                 onCollectPeople = { navController.navigate("${SearchTeammateScreen.route}/${projectId}") },
                 onEndProject = { navController.navigate("${EndScreen.route}/${projectId}") },
                 onProfileClick = {
-                    profileViewModel.setCurrentUserDetail(it)
                     navController.navigate(AlienScreen.route)
+                    profileViewModel.setCurrentUserDetail(it)
                 }
             )
         }
@@ -221,13 +227,20 @@ fun NavGraphProfile(
                 ?: error("projectId cannot be null")
             EndScreen(
                 onClickEnd = {
-                    profileViewModel.endProject(projectId)
-                    navController.navigate(ProfileScreen.route)
+                    if (projectPhotos != ImageDownloadStatus.Loading) {
+                        profileViewModel.endProject(projectId, context)
+                        navController.navigate(ProfileScreen.route)
+                    }
                 },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
                 isKeyboardOpen = isKeyboardOpen,
-                onClickDownload = { launcherEnd.launch("image/*") }
+                onClickDownload = { launcherEnd.launch("image/*") },
+                projectPhotos = projectPhotos,
+                users = profileUiState.currentUsers,
+                feedbackList = profileUiState.feedbackList,
+                members = profileUiState.currentProject.members,
+                ratingList = profileUiState.ratingList
             )
         }
     }

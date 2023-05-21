@@ -8,6 +8,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
@@ -34,6 +35,7 @@ interface TeamRepository {
     )
     fun increaseTeamNumber(teamId: String)
     fun getTeams(searchText: Pair<String, Int>): Flow<Response>
+    fun deleteTeams(projectId: String)
 }
 
 class TeamItemsRepository : TeamRepository {
@@ -46,10 +48,11 @@ class TeamItemsRepository : TeamRepository {
             if (searchText.first.isNotEmpty()) {
                 productsQuery = productsQuery.whereArrayContainsAny("tags", searchText.first.split(" "))
             }
+            // 2 - сначала давние
             when (searchText.second) {
                 1 -> productsQuery = productsQuery.orderBy("name", Query.Direction.ASCENDING)
-                2 -> productsQuery = productsQuery.orderBy("id", Query.Direction.ASCENDING)
-                else -> productsQuery = productsQuery.orderBy("id", Query.Direction.DESCENDING)
+                2 -> productsQuery = productsQuery.orderBy("publishDate", Query.Direction.ASCENDING)
+                else -> productsQuery = productsQuery.orderBy("publishDate", Query.Direction.DESCENDING)
             }
 
             snapshotStateListener = productsQuery.addSnapshotListener { snapshot, e ->
@@ -75,6 +78,14 @@ class TeamItemsRepository : TeamRepository {
         teamsRef.document(teamId).get().addOnSuccessListener {
             val newTeamNumber = it?.toObject(Team::class.java)?.members ?: 0
             teamsRef.document(teamId).update("members", newTeamNumber + 1)
+        }
+    }
+
+    override fun deleteTeams(projectId: String) {
+        teamsRef.whereEqualTo("project", projectId).get().addOnSuccessListener {
+            for (document in it.documents) {
+                document.reference.delete()
+            }
         }
     }
 

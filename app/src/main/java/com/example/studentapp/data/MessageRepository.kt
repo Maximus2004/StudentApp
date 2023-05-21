@@ -54,10 +54,12 @@ class MessageRepository : MessRepository {
                     messagesRef.orderBy("time", Query.Direction.ASCENDING).addSnapshotListener { snapshot, e ->
                         val response = if (snapshot != null) {
                             val messages = snapshot.toObjects(Message::class.java)
-                            messages
-                        } else {
+                            val temp: MutableList<Message> = mutableListOf()
+                            Log.d(TAG, dialog)
+                            messages.forEach { if ((it.send == UserAuthRepository.getUserId() && it.receive == dialog) || (it.send == dialog && it.receive == UserAuthRepository.getUserId())) temp.add(it) }
+                            temp
+                        } else
                             listOf()
-                        }
                         trySend(response)
                     }
             } catch (e: Exception) {

@@ -31,7 +31,7 @@ class SearchViewModel(
         _uiState.update { it.copy(currentTeam = teamItemsRepository.getTeamById(teamId)) }
     }
 
-    fun setProjectById(projectId: String) = viewModelScope.launch {
+    fun setProjectByIdForTeam(projectId: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(
                 currentProject = projectItemsRepository.getProjectById(projectId)
@@ -44,20 +44,32 @@ class SearchViewModel(
         }
     }
 
+    fun setProjectById(project: Project) = viewModelScope.launch {
+        _uiState.update {
+            it.copy(
+                currentProject = project,
+                currentUsers = userAuthRepository.getUsersList(project.members.keys.toList())
+            )
+        }
+    }
+
     fun setCurrentUserDetail(userId: String) = viewModelScope.launch {
         _uiState.update {
             it.copy(currentUserDetail = userAuthRepository.getUserById(userId))
         }
         _uiState.update {
+            var temp: String? = null
+            if (uiState.value.currentUserDetail.leaderProjects.isNotEmpty())
+                temp = uiState.value.currentUserDetail.leaderProjects.keys.last()
             it.copy(
-                currentLastProjectName = projectItemsRepository.getProjectById(uiState.value.currentUserDetail.leaderProjects.keys.last()).name
+                currentLastProjectName = if (temp != null) projectItemsRepository.getProjectById(temp).name else "Пока нет проектов"
             )
         }
     }
 
     private fun getCurrentTimeFormatted(): String {
         val currentTime = Timestamp.now().toDate()
-        val format = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val format = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         return format.format(currentTime)
     }
 

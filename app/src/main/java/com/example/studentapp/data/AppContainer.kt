@@ -12,12 +12,14 @@ interface AppContainer {
     val teamItemsRepository: TeamRepository
     val userAuthRepository: AuthRepository
     val messageRepository: MessRepository
+    val feedbackItemsRepository: FeedbackRepository
 }
 
-class AppDataContainer(context: Context, dataStore: DataStore<Preferences>) : AppContainer {
+class AppDataContainer(dataStore: DataStore<Preferences>) : AppContainer {
     override val projectItemsRepository: ItemsRepository = ProjectItemsRepository()
     override val userPreferencesRepository: UserPreferencesRepository = UserPreferencesRepository(dataStore)
     override val teamItemsRepository: TeamRepository = TeamItemsRepository()
     override val userAuthRepository: AuthRepository = UserAuthRepository(auth = Firebase.auth)
     override val messageRepository: MessRepository = MessageRepository()
+    override val feedbackItemsRepository: FeedbackRepository = FeedbackItemsRepository()
 }

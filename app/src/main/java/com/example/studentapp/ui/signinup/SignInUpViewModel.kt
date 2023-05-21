@@ -11,28 +11,8 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.net.Uri
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.studentapp.R
-import com.example.studentapp.ui.profile.ProfileViewModel
-import com.example.studentapp.ui.profile.UserProjectsState
 import kotlinx.coroutines.flow.*
 
 class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewModel() {
@@ -40,6 +20,9 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
     val uiState: StateFlow<SignInUpUiState> = _uiState
     private val _avatarState: MutableStateFlow<Response> = MutableStateFlow(Response.Default)
     val avatarState: StateFlow<Response> = _avatarState.asStateFlow()
+    private val _portfolioState: MutableStateFlow<ImageDownloadStatus> =
+        MutableStateFlow(ImageDownloadStatus.Default)
+    val portfolioState: StateFlow<ImageDownloadStatus> = _portfolioState.asStateFlow()
 
     fun onPasswordChanged(password: String) {
         _uiState.update {
@@ -47,12 +30,23 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
         }
     }
 
-    fun setProfilePhotos(uris: List<Uri>) = viewModelScope.launch {
+    fun setProfilePhotos(uris: List<Uri>, context: Context) = viewModelScope.launch {
+        _portfolioState.update { ImageDownloadStatus.Loading }
         userAuthRepository.uploadProfilePhotos(uris).collect { response ->
-            _uiState.update {
-                val temp = uiState.value.portfolio.toMutableList()
-                temp.add(response)
-                it.copy(portfolio = temp)
+            if (!response.second) {
+                _uiState.update {
+                    val temp = uiState.value.portfolio.toMutableList()
+                    temp.add(response.first)
+                    it.copy(portfolio = temp)
+                }
+            } else {
+                Toast.makeText(context, "Портфолио успешно загружено", Toast.LENGTH_SHORT).show()
+                _uiState.update {
+                    val temp = uiState.value.portfolio.toMutableList()
+                    temp.add(response.first)
+                    it.copy(portfolio = temp)
+                }
+                _portfolioState.update { ImageDownloadStatus.Success }
             }
         }
     }
@@ -233,5 +227,3 @@ class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewMo
         }
     }
 }
-
-data class UserAvatarState(val avatar: Uri)

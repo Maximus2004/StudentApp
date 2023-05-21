@@ -63,7 +63,8 @@ fun AlienProfileScreen(
                         onClickShowProjects = onClickShowProjects,
                         numberOfProjects = if (user.subordinateProjects.isEmpty() && user.leaderProjects.isEmpty()) 0 else user.subordinateProjects.size + user.leaderProjects.size,
                         textLastProject = textLastProject,
-                        isAlienProfile = isAlienProfile
+                        isAlienProfile = isAlienProfile,
+                        rating = user.rating
                     )
                     Text(text = "Портфолио", style = MaterialTheme.typography.h5, modifier = Modifier.padding(top = 15.dp))
                 }

@@ -1,8 +1,10 @@
 package com.example.studentapp.ui.message
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studentapp.data.*
+import com.example.studentapp.ui.home.TAG
 import com.example.studentapp.ui.profile.ProfileViewModel
 import com.example.studentapp.ui.profile.UserProjectsState
 import kotlinx.coroutines.flow.*
@@ -18,24 +20,47 @@ class MessageViewModel(
     // технология называется backing property (редачить можем только из этого класса)
     private val _uiState = MutableStateFlow(MessageUiState())
     val uiState: StateFlow<MessageUiState> = _uiState
-    var messageList: StateFlow<MessageListState> = messageRepository.fillMessages(uiState.value.currentUserId)
-        .map { MessageListState(it) }
-        .stateIn(
-            scope = viewModelScope,
-            SharingStarted.WhileSubscribed(ProfileViewModel.TIMEOUT_MILLIS),
-            initialValue = MessageListState()
-        )
+    var messageList: StateFlow<MessageListState> = MutableStateFlow(MessageListState())
+
+//    val messageList: StateFlow<MessageListState> = combine(
+//        messageRepository.fillMessages(uiState.value.currentUserId),
+//        uiState.map { it.currentUserId }
+//    ) { messages, _ ->
+//        MessageListState(messages)
+//    }.stateIn(
+//        scope = viewModelScope,
+//        started = SharingStarted.WhileSubscribed(ProfileViewModel.TIMEOUT_MILLIS),
+//        initialValue = MessageListState()
+//    )
 
     fun setChatsList() = viewModelScope.launch {
         _uiState.update {
             it.copy(
-                currentChats = userAuthRepository.getUsersList(userAuthRepository.getUserById(UserAuthRepository.getUserId()).message)
+                currentChats = userAuthRepository.getUsersList(
+                    userAuthRepository.getUserById(
+                        UserAuthRepository.getUserId()
+                    ).message
+                )
             )
         }
     }
 
     fun setCurrentMessages(userId: String) {
-        _uiState.update { it.copy(currentUserId = userId) }
+        messageList = messageRepository.fillMessages(userId)
+            .map { MessageListState(it) }
+            .stateIn(
+                scope = viewModelScope,
+                SharingStarted.WhileSubscribed(ProfileViewModel.TIMEOUT_MILLIS),
+                initialValue = MessageListState()
+            )
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    currentUserId = userId,
+                    currentUser = userAuthRepository.getUserById(userId)
+                )
+            }
+        }
     }
 
     private fun getCurrentTimeFormatted(): String {

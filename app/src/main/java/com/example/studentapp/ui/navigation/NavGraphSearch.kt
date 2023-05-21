@@ -1,6 +1,7 @@
 package com.example.studentapp.ui.navigation
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -29,6 +31,7 @@ fun NavGraphSearch(
     var searchText: Pair<String, Int> by remember { mutableStateOf(Pair("", 1)) }
     val teamsState: Response = searchViewModel.teamsList.collectAsState().value
     val navController = rememberNavController()
+    val context = LocalContext.current
     navController.addOnDestinationChangedListener { navControll, _, _ ->
         navState.value = navControll.saveState() ?: Bundle()
     }
@@ -71,13 +74,14 @@ fun NavGraphSearch(
             DetailTeammateScreen(
                 team = searchUiState.currentTeam,
                 onClickShowProject = {
-                    searchViewModel.setProjectById(it)
+                    searchViewModel.setProjectByIdForTeam(it)
                     navController.navigate(ActiveProjectScreen.route)
                 },
                 onClickReply = { navController.navigate(ReplyScreen.route) },
                 onNavigateBack = { navController.navigateUp() },
                 contentPadding = contentPadding,
-                members = searchUiState.currentTeam.members
+                members = searchUiState.currentTeam.members,
+                currentUser = UserAuthRepository.getUserId()
             )
         }
         composable(route = ActiveProjectScreen.route) {
@@ -95,6 +99,7 @@ fun NavGraphSearch(
         composable(route = AlienScreen.route) {
             AlienProfileScreen(
                 onClickShowProjects = {
+                    navController.navigate(DifferentProjects.route)
                     searchViewModel.setProjectList(
                         projectLeaderIds = searchUiState.currentUserDetail.leaderProjects,
                         projectSubordinateIds = searchUiState.currentUserDetail.subordinateProjects
@@ -119,6 +124,7 @@ fun NavGraphSearch(
                     searchViewModel.addSubordinateProject(searchUiState.currentTeam.project)
                     searchViewModel.addMemberInProject(searchUiState.currentTeam.project)
                     searchViewModel.increaseTeamNumber(searchUiState.currentTeam.id)
+                    Toast.makeText(context, "Ваше сообщение отправлено руководителю", Toast.LENGTH_SHORT).show()
                     navController.navigate(SearchScreen.route)
                 },
                 contentPadding = contentPadding,
@@ -128,12 +134,27 @@ fun NavGraphSearch(
         composable(route = DifferentProjects.route) {
             DifferentProjectsScreen(
                 onNavigateBack = { navController.navigateUp() },
-                onClickActiveSubordinateProject = { navController.navigate("${ActiveProjectScreen.route}/${it}") },
-                onClickNotActiveProject = { navController.navigate("${DetailProjectScreen.route}/${it}") },
-                leaderProjects = hashMapOf(),
-                subordinateProjects = hashMapOf(),
+                onClickActiveSubordinateProject = {
+                    navController.navigate(ActiveProjectScreen.route)
+                    searchViewModel.setProjectById(it)
+                },
+                onClickNotActiveProject = {
+                    navController.navigate(DetailProjectScreen.route)
+                    searchViewModel.setProjectById(it)
+                },
+                leaderProjects = searchUiState.currentUserLeaderProjects,
+                subordinateProjects = searchUiState.currentUserSubordinateProjects,
                 contentPadding = contentPadding,
                 isShowingCreationButton = false
+            )
+        }
+
+        composable(route = DetailProjectScreen.route) {
+            DetailProjectScreen(
+                project = searchUiState.currentProject,
+                onNavigateBack = { navController.navigateUp() },
+                contentPadding = contentPadding,
+                feedback = Feedback()
             )
         }
     }

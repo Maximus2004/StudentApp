@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.studentapp.ui.home.TAG
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -23,7 +24,8 @@ interface ItemsRepository {
         onComplete: (Boolean, String) -> Unit
     )
     fun addMemberInProject(projectId: String)
-    fun endProject(projectId: String, photos: List<String>)
+    suspend fun endProject(projectId: String, photos: List<String>)
+    suspend fun getSubordinateUserList(projectId: String): List<String>
 }
 
 class ProjectItemsRepository : ItemsRepository {
@@ -70,10 +72,18 @@ class ProjectItemsRepository : ItemsRepository {
         }
     }
 
-    override fun endProject(projectId: String, photos: List<String>) {
-        projectsRef.document(projectId).get().addOnSuccessListener {
-            projectsRef.document(projectId).update("photos", photos)
+    override suspend fun getSubordinateUserList(projectId: String): List<String> {
+        val snapshot = projectsRef.document(projectId).get().await()
+        val project = snapshot.toObject(Project::class.java) ?: Project()
+        val temp: MutableList<String> = mutableListOf()
+        for (user in project.members) {
+            if (!user.toPair().second) temp.add(user.toPair().first)
         }
+        return temp
+    }
+
+    override suspend fun endProject(projectId: String, photos: List<String>) {
+        projectsRef.document(projectId).update("photos", photos).await()
     }
 
     override suspend fun getProjectById(projectId: String): Project {

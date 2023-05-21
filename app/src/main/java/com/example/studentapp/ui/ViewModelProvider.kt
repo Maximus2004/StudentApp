@@ -32,7 +32,8 @@ object ViewModelProvider {
             ProfileViewModel(
                 studentApplication().container.projectItemsRepository,
                 studentApplication().container.teamItemsRepository,
-                studentApplication().container.userAuthRepository
+                studentApplication().container.userAuthRepository,
+                studentApplication().container.feedbackItemsRepository
             )
         }
         initializer {

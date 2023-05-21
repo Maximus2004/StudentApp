@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.studentapp.data.Project
 import com.example.studentapp.ui.navigation.NavigationDestination
@@ -32,7 +33,7 @@ fun DifferentProjectsScreen(
     leaderProjects: HashMap<Project, Boolean>,
     subordinateProjects: HashMap<Project, Boolean>,
     onClickCreateTeam: () -> Unit = {},
-    isShowingCreationButton: Boolean = true,
+    isShowingCreationButton: Boolean,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -42,6 +43,15 @@ fun DifferentProjectsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
+                item {
+                    if (leaderProjects.isEmpty() && subordinateProjects.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(text = "Здесь пока нет проектов",
+                                modifier = Modifier.align(Alignment.Center).padding(10.dp),
+                                textAlign = TextAlign.Center)
+                        }
+                    }
+                }
                 items(leaderProjects.toList()) { project ->
                     ProjectCard(
                         name = project.first.name,

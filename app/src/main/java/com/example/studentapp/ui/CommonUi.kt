@@ -218,7 +218,7 @@ fun TeamCard(
                     lineHeight = 25.sp
                 )
                 Text(
-                    text = "$members участников",
+                    text = "$members откликов",
                     style = MaterialTheme.typography.subtitle2,
                     modifier = Modifier.padding(vertical = 17.dp)
                 )

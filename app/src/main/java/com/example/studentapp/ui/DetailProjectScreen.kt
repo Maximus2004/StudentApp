@@ -25,6 +25,11 @@ import com.example.studentapp.R
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -43,11 +48,13 @@ object DetailProjectScreen : NavigationDestination {
 fun DetailProjectScreen(
     onNavigateBack: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
-    project: Project
+    project: Project,
+    feedback: Feedback
 ) {
     val state = rememberPagerState()
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding())
         ) {
@@ -58,34 +65,31 @@ fun DetailProjectScreen(
                         count = project.photos.size,
                         modifier = Modifier.wrapContentSize(),
                     ) { page ->
-                        Column() {
-                            Card(
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                elevation = 8.dp
-                            ) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current)
-                                        .data(project.photos[page])
-                                        .crossfade(true)
-                                        .build(),
-                                    contentScale = ContentScale.FillWidth,
-                                    contentDescription = null
-                                )
-                            }
-                            DotsIndicator(totalDots = state.pageCount, selectedIndex = state.currentPage)
+                        Card(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            elevation = 8.dp
+                        ) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(project.photos[page])
+                                    .crossfade(true)
+                                    .build(),
+                                contentScale = ContentScale.FillWidth,
+                                contentDescription = null,
+                                placeholder = rememberVectorPainter(image = Icons.Filled.Autorenew)
+                            )
                         }
                     }
+                    DotsIndicator(totalDots = state.pageCount, selectedIndex = state.currentPage)
                 }
             }
             item {
                 Card(
                     elevation = 50.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
+                    modifier = Modifier.padding(top = 16.dp),
                     shape = MaterialTheme.shapes.large
                 ) {
                     Column() {
@@ -111,7 +115,7 @@ fun DetailProjectScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp, vertical = 21.dp)
                         )
-                        //FeedBackCard(feedbacks[0])
+                        if (feedback.text.isNotBlank()) FeedBackCard(feedback)
                     }
                 }
             }
@@ -120,24 +124,16 @@ fun DetailProjectScreen(
 }
 
 @Composable
-fun FeedBackCard(feedback: FeedbackInfo) {
-    Column(modifier = Modifier.padding(horizontal = 21.dp)) {
+fun FeedBackCard(feedback: Feedback) {
+    Column(modifier = Modifier.padding(horizontal = 21.dp).padding(bottom = 20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = feedback.name, style = MaterialTheme.typography.h5)
+            Text(text = "Отзыв от руководителя", style = MaterialTheme.typography.h5)
             Spacer(modifier = Modifier.weight(1f))
-            if (feedback.role) {
-                Text(
-                    text = "Руководитель",
-                    modifier = Modifier,
-                    style = MaterialTheme.typography.subtitle2
-                )
-            } else {
-                Text(
-                    text = "Участник",
-                    modifier = Modifier,
-                    style = MaterialTheme.typography.subtitle2
-                )
-            }
+            Text(
+                text = "Участник",
+                modifier = Modifier,
+                style = MaterialTheme.typography.subtitle2
+            )
         }
         Text(
             text = feedback.text,
@@ -149,14 +145,25 @@ fun FeedBackCard(feedback: FeedbackInfo) {
             style = MaterialTheme.typography.h6,
             modifier = Modifier.padding(bottom = 4.dp)
         )
-        Image(
-            painter = painterResource(id = R.drawable.stars),
-            contentDescription = null,
-            alignment = Alignment.CenterStart,
-            modifier = Modifier
-                .width(100.dp)
-                .height(16.dp)
-        )
+        StarRatingInfo(rating = feedback.rate)
+    }
+}
+
+@Composable
+fun StarRatingInfo(modifier: Modifier = Modifier, rating: Int) {
+    val maxRating = 5
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        for (rate in 1..maxRating) {
+            val isSelected = rate <= rating
+            val starIcon = if (isSelected) Icons.Default.Star else Icons.Default.StarBorder
+            val tint = if (isSelected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+            Icon(
+                imageVector = starIcon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -198,6 +205,6 @@ fun DotsIndicator(
 @Composable
 fun DetailScreenPreview() {
     StudentAppTheme {
-        DetailProjectScreen(onNavigateBack = {}, project = projects[0])
+        DetailProjectScreen(onNavigateBack = {}, project = projects[0], feedback = Feedback())
     }
 }

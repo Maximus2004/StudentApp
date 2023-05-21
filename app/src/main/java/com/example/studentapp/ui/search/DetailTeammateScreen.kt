@@ -39,6 +39,7 @@ fun DetailTeammateScreen(
     onClickReply: () -> Unit,
     onNavigateBack: () -> Unit,
     members: Int,
+    currentUser: String,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(
@@ -95,25 +96,27 @@ fun DetailTeammateScreen(
                     }
                 }
             }
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                ExtendedFloatingActionButton(
-                    text = {
-                        Text(
-                            text = "Откликнуться",
-                            style = MaterialTheme.typography.button
-                        )
-                    },
-                    onClick = { onClickReply() },
-                    backgroundColor = Color(0xFF9378FF),
-                    modifier = Modifier
-                        .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())
-                        .height(54.dp)
-                        .width(263.dp),
-                )
+            if (team.leaderId != currentUser) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    ExtendedFloatingActionButton(
+                        text = {
+                            Text(
+                                text = "Откликнуться",
+                                style = MaterialTheme.typography.button
+                            )
+                        },
+                        onClick = { onClickReply() },
+                        backgroundColor = Color(0xFF9378FF),
+                        modifier = Modifier
+                            .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())
+                            .height(54.dp)
+                            .width(263.dp),
+                    )
+                }
             }
         }
     }

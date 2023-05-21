@@ -1,6 +1,5 @@
 package com.example.studentapp.ui.signinup
 
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
@@ -17,24 +16,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.*
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat.startActivityForResult
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.studentapp.R
+import com.example.studentapp.data.ImageDownloadStatus
 import com.example.studentapp.ui.TextInput
-import com.example.studentapp.ui.home.TAG
 import com.example.studentapp.ui.navigation.NavigationDestination
-import com.example.studentapp.ui.theme.StudentAppTheme
 
 object SignUpScreen : NavigationDestination {
     override val route: String = "SignUpScreen"
@@ -63,7 +55,8 @@ fun SignUpScreen(
     isEmailError: Boolean,
     onClickUploadAvatar: () -> Unit,
     avatar: Response,
-    onClickUploadPortfolio: () -> Unit
+    onClickUploadPortfolio: () -> Unit,
+    portfolio: ImageDownloadStatus
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -110,7 +103,11 @@ fun SignUpScreen(
                                 .clip(CircleShape)
                                 .clickable { onClickUploadAvatar() }
                         )
-                        is Response.Loading -> CircularProgressIndicator(modifier = Modifier.padding(top = 22.dp))
+                        is Response.Loading -> CircularProgressIndicator(
+                            modifier = Modifier.padding(
+                                top = 22.dp
+                            )
+                        )
                         is Response.Success ->
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
@@ -214,14 +211,21 @@ fun SignUpScreen(
                     }
                 )
             }
-            Button(
-                onClick = { onClickRegisterButton() },
-                modifier = Modifier
-                    .padding(top = 20.dp, bottom = 93.dp)
-                    .size(width = 263.dp, height = 54.dp),
-                shape = RoundedCornerShape(30.dp)
-            ) {
-                Text(text = "Зарегистрироваться")
+            Box(modifier = Modifier.padding(top = 20.dp, bottom = 93.dp).size(width = 263.dp, height = 54.dp)) {
+                Button(
+                    onClick = { onClickRegisterButton() },
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(30.dp)
+                ) {
+                    if (portfolio != ImageDownloadStatus.Loading) Text(text = "Зарегистрироваться")
+                }
+                if (portfolio == ImageDownloadStatus.Loading)
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .align(Alignment.Center),
+                        color = Color.White
+                    )
             }
         }
     }
