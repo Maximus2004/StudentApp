@@ -36,6 +36,7 @@ interface TeamRepository {
     fun increaseTeamNumber(teamId: String)
     fun getTeams(searchText: Pair<String, Int>): Flow<Response>
     fun deleteTeams(projectId: String)
+    fun deleteTeamById(teamId: String)
 }
 
 class TeamItemsRepository : TeamRepository {
@@ -87,6 +88,10 @@ class TeamItemsRepository : TeamRepository {
                 document.reference.delete()
             }
         }
+    }
+
+    override fun deleteTeamById(teamId: String) {
+        teamsRef.document(teamId).delete()
     }
 
     override suspend fun getTeamById(teamId: String): Team {

@@ -62,7 +62,9 @@ class SearchViewModel(
             if (uiState.value.currentUserDetail.leaderProjects.isNotEmpty())
                 temp = uiState.value.currentUserDetail.leaderProjects.keys.last()
             it.copy(
-                currentLastProjectName = if (temp != null) projectItemsRepository.getProjectById(temp).name else "Пока нет проектов"
+                currentLastProjectName = if (temp != null) projectItemsRepository.getProjectById(
+                    temp
+                ).name else "Пока нет проектов"
             )
         }
     }
@@ -73,7 +75,7 @@ class SearchViewModel(
         return format.format(currentTime)
     }
 
-    fun addMessage(text: String, send: String, receive: String) {
+    fun addMessage(text: String, send: String, receive: String) = viewModelScope.launch {
         if (text.isNotBlank()) {
             messageRepository.addMessage(
                 text = text,
@@ -81,16 +83,13 @@ class SearchViewModel(
                 send = send,
                 time = getCurrentTimeFormatted()
             )
-            userAuthRepository.addMessage(receive)
+            userAuthRepository.addMessage(
+                leaderUser = receive,
+                currentUser = send,
+                teamName = uiState.value.currentTeam.name,
+                teamId = uiState.value.currentTeam.id
+            )
         }
-    }
-
-    fun addSubordinateProject(projectId: String) {
-        userAuthRepository.addSubordinateProject(projectId)
-    }
-
-    fun addMemberInProject(projectId: String) {
-        projectItemsRepository.addMemberInProject(projectId)
     }
 
     fun increaseTeamNumber(teamId: String) {
@@ -110,10 +109,4 @@ class SearchViewModel(
             )
         }
     }
-
-    companion object {
-        const val TIMEOUT_MILLIS = 5_000L
-    }
 }
-
-data class TeamState(val teams: List<Team> = listOf())

@@ -210,7 +210,7 @@ class ProfileViewModel(
                     )
                 }",
                 leaderName = leaderName,
-                members = 1,
+                members = 0,
                 leaderAvatar = leaderAvatar
             ) { teamAddedStatus ->
                 if (teamAddedStatus) {

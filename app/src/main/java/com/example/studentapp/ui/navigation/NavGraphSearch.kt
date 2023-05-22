@@ -121,8 +121,6 @@ fun NavGraphSearch(
                         send = UserAuthRepository.getUserId(),
                         receive = searchUiState.currentTeam.leaderId,
                     )
-                    searchViewModel.addSubordinateProject(searchUiState.currentTeam.project)
-                    searchViewModel.addMemberInProject(searchUiState.currentTeam.project)
                     searchViewModel.increaseTeamNumber(searchUiState.currentTeam.id)
                     Toast.makeText(context, "Ваше сообщение отправлено руководителю", Toast.LENGTH_SHORT).show()
                     navController.navigate(SearchScreen.route)

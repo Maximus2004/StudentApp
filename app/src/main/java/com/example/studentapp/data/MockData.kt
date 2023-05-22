@@ -27,7 +27,7 @@ data class User(
     val subordinateProjects: HashMap<String, Boolean> = hashMapOf(),
     val avatar: String = "",
     val portfolio: List<String> = listOf(),
-    val message: List<String> = listOf(),
+    val message: HashMap<String, HashMap<String, String>> = hashMapOf(),
     val rating: Int = 0
 )
 

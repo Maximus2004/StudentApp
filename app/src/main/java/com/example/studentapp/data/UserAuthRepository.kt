@@ -43,9 +43,9 @@ interface AuthRepository {
         avatar: String = "https://firebasestorage.googleapis.com/v0/b/studentapp-8b024.appspot.com/o/images%2Funknown_avatar.png?alt=media&token=de909d87-c093-49d9-ae50-406e4e256262",
         portfolio: List<String>
     )
-
+    suspend fun getMessages(userId: String): HashMap<User, HashMap<String, String>>
     fun addLeaderProject(projectId: String)
-    fun addSubordinateProject(projectId: String)
+    fun addSubordinateProject(projectId: String, userId: String)
     fun fillProjects(): Flow<Pair<Deferred<HashMap<Project, Boolean>>, Deferred<HashMap<Project, Boolean>>>>
     suspend fun getUserById(userId: String): User
     suspend fun getUsersList(users: List<String>): List<User>
@@ -53,10 +53,11 @@ interface AuthRepository {
     suspend fun endProject(projectId: String)
     fun setImage(imageUri: Uri): Flow<Response>
     fun uploadProfilePhotos(uris: List<Uri>): Flow<Pair<String, Boolean>>
-    fun addMessage(userId: String)
+    fun addMessage(currentUser: String, teamId: String, teamName: String, leaderUser: String)
     fun endSubordinateProjects(projectId: String, userList: List<String>)
     fun setNewFeedback(newRate: Int, userId: String)
     fun listenerToRating(): Flow<Int>
+    fun deleteDialog(teamId: String, userId: String)
 }
 
 class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
@@ -145,9 +146,24 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
             }
         }
 
-    override fun addMessage(userId: String) {
-        usersRef.document(getUserId()).update("message", FieldValue.arrayUnion(userId))
-        usersRef.document(userId).update("message", FieldValue.arrayUnion(getUserId()))
+    override fun addMessage(currentUser: String, teamId: String, teamName: String, leaderUser: String) {
+        usersRef.document(getUserId()).get().addOnSuccessListener {
+            val newMessages = it?.toObject(User::class.java)?.message ?: hashMapOf()
+            if (!newMessages.containsKey(leaderUser)) {
+                newMessages.put(leaderUser, hashMapOf())
+                usersRef.document(getUserId()).update("message", newMessages)
+            }
+        }
+        usersRef.document(leaderUser).get().addOnSuccessListener {
+            val newMessages = it?.toObject(User::class.java)?.message ?: hashMapOf()
+            if (newMessages.containsKey(currentUser)) {
+                newMessages[currentUser]?.put(teamId, teamName)
+                usersRef.document(leaderUser).update("message", newMessages)
+            } else {
+                newMessages.put(currentUser, hashMapOf(teamId to teamName))
+                usersRef.document(leaderUser).update("message", newMessages)
+            }
+        }
     }
 
     override suspend fun getUserById(userId: String): User {
@@ -190,6 +206,16 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
         usersRef.document(getUserId()).set(user)
     }
 
+    override suspend fun getMessages(userId: String): HashMap<User, HashMap<String, String>> {
+        val snapshot = usersRef.document(userId).get().await()
+        val temp = if (snapshot != null) snapshot.get("message") as HashMap<String, HashMap<String, String>> else hashMapOf()
+        val newUserList = HashMap<User, HashMap<String, String>>()
+        temp.forEach {
+            newUserList.put(getUserById(it.key), it.value)
+        }
+        return newUserList
+    }
+
     override fun addLeaderProject(projectId: String) {
         usersRef.document(getUserId()).get().addOnSuccessListener {
             val newLeaderProjects = it?.toObject(User::class.java)?.leaderProjects
@@ -198,11 +224,19 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
         }
     }
 
-    override fun addSubordinateProject(projectId: String) {
+    override fun addSubordinateProject(projectId: String, userId: String) {
+        usersRef.document(userId).get().addOnSuccessListener {
+            val newSubordinateProjects = it.get("subordinateProjects") as HashMap<String, Boolean>
+            newSubordinateProjects.put(projectId, true)
+            it.reference.update("subordinateProjects", newSubordinateProjects)
+        }
+    }
+
+    override fun deleteDialog(teamId: String, userId: String) {
         usersRef.document(getUserId()).get().addOnSuccessListener {
-            val newSubordinateProjects = it?.toObject(User::class.java)?.subordinateProjects
-            newSubordinateProjects?.put(projectId, true)
-            usersRef.document(getUserId()).update("subordinateProjects", newSubordinateProjects)
+            val messages = it.get("message") as HashMap<String, HashMap<String, String>>
+            messages[userId]?.remove(teamId)
+            it.reference.update("message", messages)
         }
     }
 

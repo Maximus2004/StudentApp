@@ -15,33 +15,30 @@ import java.util.*
 
 class MessageViewModel(
     private val messageRepository: MessRepository,
-    private val userAuthRepository: AuthRepository
+    private val userAuthRepository: AuthRepository,
+    private val projectItemsRepository: ItemsRepository,
+    private val teamItemsRepository: TeamRepository
 ) : ViewModel() {
     // технология называется backing property (редачить можем только из этого класса)
     private val _uiState = MutableStateFlow(MessageUiState())
     val uiState: StateFlow<MessageUiState> = _uiState
     var messageList: StateFlow<MessageListState> = MutableStateFlow(MessageListState())
 
-//    val messageList: StateFlow<MessageListState> = combine(
-//        messageRepository.fillMessages(uiState.value.currentUserId),
-//        uiState.map { it.currentUserId }
-//    ) { messages, _ ->
-//        MessageListState(messages)
-//    }.stateIn(
-//        scope = viewModelScope,
-//        started = SharingStarted.WhileSubscribed(ProfileViewModel.TIMEOUT_MILLIS),
-//        initialValue = MessageListState()
-//    )
+    fun updateDropdownList(teamId: String) {
+        uiState.value.currentChats[uiState.value.currentUser]?.remove(teamId)
+    }
+
+    fun addMemberAndSubordinateProject(currentUserId: String, teamId: String) = viewModelScope.launch {
+        val projectId = teamItemsRepository.getTeamById(teamId).project
+        userAuthRepository.addSubordinateProject(userId = currentUserId, projectId = projectId)
+        projectItemsRepository.addMemberInProject(projectId = projectId, userId = currentUserId)
+        teamItemsRepository.deleteTeamById(teamId = teamId)
+        userAuthRepository.deleteDialog(teamId = teamId, userId = currentUserId)
+    }
 
     fun setChatsList() = viewModelScope.launch {
         _uiState.update {
-            it.copy(
-                currentChats = userAuthRepository.getUsersList(
-                    userAuthRepository.getUserById(
-                        UserAuthRepository.getUserId()
-                    ).message
-                )
-            )
+            it.copy(currentChats = userAuthRepository.getMessages(UserAuthRepository.getUserId()))
         }
     }
 

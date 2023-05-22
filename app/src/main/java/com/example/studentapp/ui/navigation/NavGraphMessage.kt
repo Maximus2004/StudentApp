@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import com.example.studentapp.data.Message
 import com.example.studentapp.data.User
+import com.example.studentapp.data.projects
 import com.example.studentapp.ui.message.ChattingScreen
 import com.example.studentapp.ui.message.MessagesScreen
 
@@ -18,7 +19,9 @@ fun NavGraphMessage(
     currentUserId: String,
     name: String,
     surname: String,
-    avatar: String
+    avatar: String,
+    onClickAcceptButton: (String) -> Unit,
+    projects: HashMap<String, String>
 ) {
     if (isShowingHomepage) {
         MessagesScreen(
@@ -34,7 +37,9 @@ fun NavGraphMessage(
             chatList = messageList,
             currentUserName = name,
             currentUserSurname = surname,
-            currentUserAvatar = avatar
+            currentUserAvatar = avatar,
+            onClickAcceptButton = onClickAcceptButton,
+            projects = projects
         )
     }
 }

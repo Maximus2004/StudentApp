@@ -23,7 +23,7 @@ interface ItemsRepository {
         members: HashMap<String, Boolean>,
         onComplete: (Boolean, String) -> Unit
     )
-    fun addMemberInProject(projectId: String)
+    fun addMemberInProject(projectId: String, userId: String)
     suspend fun endProject(projectId: String, photos: List<String>)
     suspend fun getSubordinateUserList(projectId: String): List<String>
 }
@@ -64,10 +64,10 @@ class ProjectItemsRepository : ItemsRepository {
             }
     }
 
-    override fun addMemberInProject(projectId: String) {
+    override fun addMemberInProject(projectId: String, userId: String) {
         projectsRef.document(projectId).get().addOnSuccessListener {
             val newMembers = it?.toObject(Project::class.java)?.members
-            newMembers?.put(UserAuthRepository.getUserId(), false)
+            newMembers?.put(userId, false)
             projectsRef.document(projectId).update("members", newMembers)
         }
     }

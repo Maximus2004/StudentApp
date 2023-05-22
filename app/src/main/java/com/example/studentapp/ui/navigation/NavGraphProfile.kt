@@ -101,7 +101,7 @@ fun NavGraphProfile(
                 contentPadding = contentPadding,
                 onClickCreateTeam = { navController.navigate(ChooseProjectScreen.route) },
                 user = user,
-                textLastProject = if (projectsList.projects.first.isNotEmpty()) projectsList.projects.first.keys.last().name else "Проектов пока нет",
+                textLastProject = if (projectsList.projects.first.isNotEmpty()) projectsList.projects.first.keys.last().name else "Своих проектов пока нет",
                 isAlienProfile = true,
                 rating = ratingState,
                 numberOfProjects = if (projectsList.projects.first.isEmpty() && projectsList.projects.second.isEmpty()) 0 else projectsList.projects.first.size + projectsList.projects.second.size

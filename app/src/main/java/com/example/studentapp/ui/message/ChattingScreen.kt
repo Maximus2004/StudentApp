@@ -41,17 +41,15 @@ import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 
-object ChattingScreen : NavigationDestination {
-    override val route: String = "ChatingScreen"
-}
-
 @Composable
 fun MessageTopBar(
     name: String,
     surname: String,
     avatar: String,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    projects: HashMap<String, String>,
+    onClickAcceptButton: (String) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     TopAppBar(
@@ -109,28 +107,36 @@ fun MessageTopBar(
                     modifier = Modifier.padding(start = 13.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-//                Box {
-//                    IconButton(
-//                        onClick = { menuExpanded = !menuExpanded },
-//                        modifier = Modifier.padding(top = 5.dp)
-//                    ) {
-//                        Icon(
-//                            imageVector = Icons.Default.MoreVert,
-//                            contentDescription = null
-//                        )
-//                    }
-//                    DropdownMenu(
-//                        expanded = menuExpanded,
-//                        onDismissRequest = { menuExpanded = false }
-//                    ) {
-//                        Text(
-//                            text = "Принять в команду",
-//                            fontSize = 18.sp,
-//                            modifier = Modifier
-//                                .padding(10.dp)
-//                                .clickable { menuExpanded = false })
-//                    }
-//                }
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = !menuExpanded },
+                        modifier = Modifier.padding(top = 5.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null
+                        )
+                    }
+                    if (projects.isNotEmpty()) {
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            projects.toList().forEach { project ->
+                                DropdownMenuItem(onClick = {
+                                    menuExpanded = false
+                                    onClickAcceptButton(project.first)
+                                }) {
+                                    Text(
+                                        text = "Принять на должность ${project.second}",
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -145,7 +151,9 @@ fun ChattingScreen(
     contentPadding: PaddingValues = PaddingValues(),
     currentUserName: String,
     currentUserSurname: String,
-    currentUserAvatar: String
+    currentUserAvatar: String,
+    onClickAcceptButton: (String) -> Unit,
+    projects: HashMap<String, String>
 ) {
     Scaffold(
         topBar = {
@@ -153,7 +161,9 @@ fun ChattingScreen(
                 onNavigateBack = { onNavigateBack() },
                 name = currentUserName,
                 surname = currentUserSurname,
-                avatar = currentUserAvatar
+                avatar = currentUserAvatar,
+                onClickAcceptButton = onClickAcceptButton,
+                projects = projects
             )
         },
     ) {
@@ -203,6 +213,7 @@ fun SendMessage(onClickSendButton: (String) -> Unit) {
         keyboardActions = KeyboardActions(onSend = {
             keyboardController?.hide()
             onClickSendButton(message)
+            message = ""
         }),
         modifier = Modifier
             .fillMaxWidth()
@@ -279,6 +290,15 @@ fun MyMessage(text: String, time: String, modifier: Modifier = Modifier) {
 @Composable
 fun MessageScreenPreview() {
     StudentAppTheme {
-        ChattingScreen(onNavigateBack = {}, chatList = listOf(), currentUserId = "", currentUserSurname = "", currentUserName = "", currentUserAvatar = "")
+        ChattingScreen(
+            onNavigateBack = {},
+            chatList = listOf(),
+            currentUserId = "",
+            currentUserSurname = "Дмитриев",
+            currentUserName = "Максим",
+            currentUserAvatar = "",
+            onClickAcceptButton = {},
+            projects = hashMapOf()
+        )
     }
 }

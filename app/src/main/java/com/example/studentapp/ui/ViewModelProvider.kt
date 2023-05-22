@@ -25,7 +25,9 @@ object ViewModelProvider {
         initializer {
             MessageViewModel(
                 studentApplication().container.messageRepository,
-                studentApplication().container.userAuthRepository
+                studentApplication().container.userAuthRepository,
+                studentApplication().container.projectItemsRepository,
+                studentApplication().container.teamItemsRepository
             )
         }
         initializer {

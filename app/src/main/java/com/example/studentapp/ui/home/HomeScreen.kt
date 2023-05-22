@@ -2,8 +2,10 @@ package com.example.studentapp.ui.home
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,6 +36,7 @@ fun HomeScreen(
     val messageListState = messageViewModel.messageList.collectAsState().value
     val navStateSearch = remember { mutableStateOf(Bundle()) }
     val navStateProfile = remember { mutableStateOf(Bundle()) }
+    val context = LocalContext.current
     Scaffold(
         bottomBar = {
             if (messageUiState.isShowingHomepage) {
@@ -69,12 +72,18 @@ fun HomeScreen(
                 },
                 isShowingHomepage = messageUiState.isShowingHomepage,
                 onNavigateBack = { messageViewModel.updateCurrentPage() },
-                chatList = messageUiState.currentChats,
+                chatList = messageUiState.currentChats.keys.toList(),
                 messageList = messageListState.messages,
                 currentUserId = UserAuthRepository.getUserId(),
                 name = messageUiState.currentUser.name,
                 surname = messageUiState.currentUser.surname,
-                avatar = messageUiState.currentUser.avatar
+                avatar = messageUiState.currentUser.avatar,
+                onClickAcceptButton = { teamId ->
+                    messageViewModel.updateDropdownList(teamId = teamId)
+                    messageViewModel.addMemberAndSubordinateProject(currentUserId = messageUiState.currentUserId, teamId = teamId)
+                    Toast.makeText(context, "Участник добавлен в проект", Toast.LENGTH_SHORT).show()
+                },
+                projects = messageUiState.currentChats[messageUiState.currentUser] ?: hashMapOf()
             )
         }
     }
