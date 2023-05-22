@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -40,6 +41,7 @@ import com.example.studentapp.data.Message
 import com.example.studentapp.ui.navigation.NavigationDestination
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun MessageTopBar(
@@ -155,6 +157,8 @@ fun ChattingScreen(
     onClickAcceptButton: (String) -> Unit,
     projects: HashMap<String, String>
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
     Scaffold(
         topBar = {
             MessageTopBar(
@@ -167,7 +171,13 @@ fun ChattingScreen(
             )
         },
     ) {
+        LaunchedEffect(chatList) {
+            coroutineScope.launch {
+                if (chatList.isNotEmpty()) listState.animateScrollToItem(chatList.size - 1)
+            }
+        }
         LazyColumn(
+            state = listState,
             modifier = Modifier.padding(top = 15.dp, end = 13.dp, start = 13.dp),
             contentPadding = contentPadding
         ) {
@@ -250,7 +260,7 @@ fun FromMessage(text: String, time: String) {
                 lineHeight = 19.sp
             )
         }
-        Text(text = time.dropLast(3), style = MaterialTheme.typography.subtitle2)
+        Text(text = time.substring(6).dropLast(3), style = MaterialTheme.typography.subtitle2)
     }
 }
 
@@ -282,7 +292,7 @@ fun MyMessage(text: String, time: String, modifier: Modifier = Modifier) {
                 lineHeight = 19.sp
             )
         }
-        Text(text = time.dropLast(3), style = MaterialTheme.typography.subtitle2)
+        Text(text = time.substring(6).dropLast(3), style = MaterialTheme.typography.subtitle2)
     }
 }
 

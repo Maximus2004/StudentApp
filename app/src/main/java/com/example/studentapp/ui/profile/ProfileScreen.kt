@@ -23,11 +23,13 @@ import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -49,7 +51,8 @@ fun ProfileScreen(
     textLastProject: String,
     contentPadding: PaddingValues = PaddingValues(),
     numberOfProjects: Int,
-    rating: Int
+    rating: Int,
+    onClickLogout: () -> Unit
 ) {
     Box() {
         LazyVerticalGrid(
@@ -61,11 +64,23 @@ fun ProfileScreen(
         ) {
             header {
                 Column() {
-                    Text(
-                        text = "Профиль",
-                        style = MaterialTheme.typography.overline,
-                        modifier = Modifier.padding(top = 56.dp)
-                    )
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 56.dp)) {
+                        Text(text = "Профиль", style = MaterialTheme.typography.overline)
+                        Spacer(modifier = Modifier.weight(1f))
+                        IconButton(
+                            onClick = { onClickLogout() },
+                            modifier = Modifier.padding(top = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Logout,
+                                contentDescription = null,
+                                tint = Color.Black,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    }
                     UserCard(
                         name = user.name + " " + user.surname,
                         modifier = Modifier.padding(vertical = 25.dp),
@@ -254,7 +269,8 @@ fun ProfileScreenPreview() {
             textLastProject = "Android-приложение для организаци",
             isAlienProfile = false,
             numberOfProjects = 0,
-            rating = 0
+            rating = 0,
+            onClickLogout = {}
         )
     }
 }

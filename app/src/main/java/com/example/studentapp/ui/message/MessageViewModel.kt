@@ -28,13 +28,14 @@ class MessageViewModel(
         uiState.value.currentChats[uiState.value.currentUser]?.remove(teamId)
     }
 
-    fun addMemberAndSubordinateProject(currentUserId: String, teamId: String) = viewModelScope.launch {
-        val projectId = teamItemsRepository.getTeamById(teamId).project
-        userAuthRepository.addSubordinateProject(userId = currentUserId, projectId = projectId)
-        projectItemsRepository.addMemberInProject(projectId = projectId, userId = currentUserId)
-        teamItemsRepository.deleteTeamById(teamId = teamId)
-        userAuthRepository.deleteDialog(teamId = teamId, userId = currentUserId)
-    }
+    fun addMemberAndSubordinateProject(currentUserId: String, teamId: String) =
+        viewModelScope.launch {
+            val projectId = teamItemsRepository.getTeamById(teamId).project
+            userAuthRepository.addSubordinateProject(userId = currentUserId, projectId = projectId)
+            projectItemsRepository.addMemberInProject(projectId = projectId, userId = currentUserId)
+            teamItemsRepository.deleteTeamById(teamId = teamId)
+            userAuthRepository.deleteDialog(teamId = teamId, userId = currentUserId)
+        }
 
     fun setChatsList() = viewModelScope.launch {
         _uiState.update {
@@ -62,17 +63,19 @@ class MessageViewModel(
 
     private fun getCurrentTimeFormatted(): String {
         val currentTime = Timestamp.now().toDate()
-        val format = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val format = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
         return format.format(currentTime)
     }
 
     fun onClickSendButton(text: String) {
-        messageRepository.addMessage(
-            text = text,
-            send = UserAuthRepository.getUserId(),
-            receive = uiState.value.currentUserId,
-            time = getCurrentTimeFormatted()
-        )
+        if (text.isNotBlank()) {
+            messageRepository.addMessage(
+                text = text,
+                send = UserAuthRepository.getUserId(),
+                receive = uiState.value.currentUserId,
+                time = getCurrentTimeFormatted()
+            )
+        }
     }
 
     fun updateCurrentPage() {

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 const val USERS_COLLECTION_REF = "users"
+const val DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/studentapp-8b024.appspot.com/o/images%2Funknown_avatar.png?alt=media&token=de909d87-c093-49d9-ae50-406e4e256262"
 
 interface AuthRepository {
     suspend fun login(
@@ -29,18 +30,16 @@ interface AuthRepository {
         password: String,
         onComplete: (Boolean, FirebaseException) -> Unit
     )
-
     suspend fun signup(
         email: String,
         password: String,
         onComplete: (Boolean, FirebaseException) -> Unit
     )
-
     fun createNewUser(
         name: String,
         surname: String,
         description: String,
-        avatar: String = "https://firebasestorage.googleapis.com/v0/b/studentapp-8b024.appspot.com/o/images%2Funknown_avatar.png?alt=media&token=de909d87-c093-49d9-ae50-406e4e256262",
+        avatar: String = DEFAULT_IMAGE,
         portfolio: List<String>
     )
     suspend fun getMessages(userId: String): HashMap<User, HashMap<String, String>>
@@ -151,17 +150,17 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
             val newMessages = it?.toObject(User::class.java)?.message ?: hashMapOf()
             if (!newMessages.containsKey(leaderUser)) {
                 newMessages.put(leaderUser, hashMapOf())
-                usersRef.document(getUserId()).update("message", newMessages)
+                it.reference.update("message", newMessages)
             }
         }
         usersRef.document(leaderUser).get().addOnSuccessListener {
             val newMessages = it?.toObject(User::class.java)?.message ?: hashMapOf()
             if (newMessages.containsKey(currentUser)) {
                 newMessages[currentUser]?.put(teamId, teamName)
-                usersRef.document(leaderUser).update("message", newMessages)
+                it.reference.update("message", newMessages)
             } else {
                 newMessages.put(currentUser, hashMapOf(teamId to teamName))
-                usersRef.document(leaderUser).update("message", newMessages)
+                it.reference.update("message", newMessages)
             }
         }
     }
@@ -220,7 +219,7 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
         usersRef.document(getUserId()).get().addOnSuccessListener {
             val newLeaderProjects = it?.toObject(User::class.java)?.leaderProjects
             newLeaderProjects?.put(projectId, true)
-            usersRef.document(getUserId()).update("leaderProjects", newLeaderProjects)
+            it.reference.update("leaderProjects", newLeaderProjects)
         }
     }
 
@@ -244,7 +243,7 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
         usersRef.document(getUserId()).get().addOnSuccessListener {
             val newLeaderProjects = it?.toObject(User::class.java)?.leaderProjects
             newLeaderProjects?.put(projectId, false)
-            usersRef.document(getUserId()).update("leaderProjects", newLeaderProjects)
+            it.reference.update("leaderProjects", newLeaderProjects)
         }
     }
 
@@ -253,7 +252,7 @@ class UserAuthRepository(val auth: FirebaseAuth) : AuthRepository {
             usersRef.document(user).get().addOnSuccessListener {
                 val newSubordinateProjects = it?.toObject(User::class.java)?.subordinateProjects
                 newSubordinateProjects?.put(projectId, false)
-                usersRef.document(user).update("subordinateProjects", newSubordinateProjects)
+                it.reference.update("subordinateProjects", newSubordinateProjects)
             }
         }
     }

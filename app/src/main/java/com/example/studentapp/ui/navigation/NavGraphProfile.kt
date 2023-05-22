@@ -37,7 +37,8 @@ fun NavGraphProfile(
     contentPadding: PaddingValues,
     userId: String,
     isKeyboardOpen: Boolean = false,
-    user: User
+    user: User,
+    onClickLogout: () -> Unit
 ) {
     val profileUiState = profileViewModel.uiState.collectAsState().value
     val projectsList = profileViewModel.projectsList.collectAsState().value
@@ -104,7 +105,8 @@ fun NavGraphProfile(
                 textLastProject = if (projectsList.projects.first.isNotEmpty()) projectsList.projects.first.keys.last().name else "Своих проектов пока нет",
                 isAlienProfile = true,
                 rating = ratingState,
-                numberOfProjects = if (projectsList.projects.first.isEmpty() && projectsList.projects.second.isEmpty()) 0 else projectsList.projects.first.size + projectsList.projects.second.size
+                numberOfProjects = if (projectsList.projects.first.isEmpty() && projectsList.projects.second.isEmpty()) 0 else projectsList.projects.first.size + projectsList.projects.second.size,
+                onClickLogout = onClickLogout
             )
         }
         composable(route = ChooseProjectScreen.route) {

@@ -71,7 +71,7 @@ class SearchViewModel(
 
     private fun getCurrentTimeFormatted(): String {
         val currentTime = Timestamp.now().toDate()
-        val format = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val format = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
         return format.format(currentTime)
     }
 

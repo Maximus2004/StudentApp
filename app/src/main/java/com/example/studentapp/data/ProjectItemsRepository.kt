@@ -68,7 +68,7 @@ class ProjectItemsRepository : ItemsRepository {
         projectsRef.document(projectId).get().addOnSuccessListener {
             val newMembers = it?.toObject(Project::class.java)?.members
             newMembers?.put(userId, false)
-            projectsRef.document(projectId).update("members", newMembers)
+            it.reference.update("members", newMembers)
         }
     }
 

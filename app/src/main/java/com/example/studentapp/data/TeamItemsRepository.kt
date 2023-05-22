@@ -78,7 +78,7 @@ class TeamItemsRepository : TeamRepository {
     override fun increaseTeamNumber(teamId: String) {
         teamsRef.document(teamId).get().addOnSuccessListener {
             val newTeamNumber = it?.toObject(Team::class.java)?.members ?: 0
-            teamsRef.document(teamId).update("members", newTeamNumber + 1)
+            it.reference.update("members", newTeamNumber + 1)
         }
     }
 

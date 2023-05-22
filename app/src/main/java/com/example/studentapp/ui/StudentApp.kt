@@ -29,7 +29,7 @@ fun StudentApp(studentViewModel: StudentViewModel = viewModel(factory = ViewMode
         SideEffect {
             systemUiController.setSystemBarsColor(color = Color(0xFFECECEC))
         }
-        HomeScreen(userId = UserAuthRepository.getUserId(), isKeyboardOpen = false, user = userUiState)
+        HomeScreen(userId = UserAuthRepository.getUserId(), isKeyboardOpen = false, user = userUiState, onClickLogout = { studentViewModel.changeUser("") })
     } else {
         SideEffect {
             systemUiController.setSystemBarsColor(color = Color.Transparent)

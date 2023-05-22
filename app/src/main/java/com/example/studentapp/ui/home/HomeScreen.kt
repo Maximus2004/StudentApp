@@ -28,6 +28,7 @@ fun HomeScreen(
     user: User,
     userId: String,
     isKeyboardOpen: Boolean = false,
+    onClickLogout: () -> Unit,
     homeViewModel: HomeViewModel = viewModel(factory = ViewModelProvider.Factory),
     messageViewModel: MessageViewModel = viewModel(factory = ViewModelProvider.Factory)
 ) {
@@ -58,7 +59,8 @@ fun HomeScreen(
                 contentPadding = contentPadding,
                 userId = userId,
                 isKeyboardOpen = isKeyboardOpen,
-                user = user
+                user = user,
+                onClickLogout = onClickLogout
             )
             PageType.Search -> NavGraphSearch(
                 navState = navStateSearch,
