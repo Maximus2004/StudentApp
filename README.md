@@ -1,5 +1,11 @@
-# StudentApp
-This application is a social network for finding teams. It helps you to find a team of people working on a common idea with enthusiasm. You are only to create project and publish request for searching new teammate. More specific description of the functionality and architecture of the application can be found in the presentation at the link:
-https://docs.google.com/presentation/d/1UVwVgh5BybqBK43MzsTyB5BN14RhI2q9/edit?usp=sharing&ouid=112854763971364430585&rtpof=true&sd=true
+# Teams
+Данный учебный проект, созданный в качестве выпускного проекта в IT Академии Samsung, представляет из себя агрегатор поиска команд. Пользователь может создать проект и разместить вакансии, относящиеся к этому проекту. Соискатели в свою очередь могут откликаться на различные вакансии и переписываться с создателями проектов.
+<br />• Регистрация и аутентификация пользователя в проекте организована при помощи Firebase Authentication.
+<br />• Для хранения прочих текстовых данных используется Firestore Database.
+<br />• Также в проекте реализована работа с Firebase Storage для сохранения изображений.
+<br />• Проект написан с использованием Jetpack Compose и Coroutines.
+<br />• Приложение построено в соответствии с паттерном MVVM и принципами SOLID
+
+Ссылка на презентацию: https://docs.google.com/presentation/d/1UVwVgh5BybqBK43MzsTyB5BN14RhI2q9/edit?usp=sharing&ouid=112854763971364430585&rtpof=true&sd=true
 
 ![Teams](https://github.com/Maximus2004/StudentApp/assets/45393927/400bdc1a-7fc9-4536-8b7b-6421924a1e1c)
