@@ -1,4 +1,4 @@
-package com.example.studentapp.ui
+package com.example.studentapp.ui.profile
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.studentapp.data.Project
+import com.example.studentapp.data.ProjectResponse
+import com.example.studentapp.ui.ProjectCard
+import com.example.studentapp.ui.TopBar
 import com.example.studentapp.ui.navigation.NavigationDestination
 
 object ChooseProjectScreen : NavigationDestination {
@@ -24,7 +26,7 @@ fun ChooseProjectScreen(
     onNavigateBack: () -> Unit,
     onClickProject: (String) -> Unit,
     onCreateProject: () -> Unit,
-    leaderProjects: HashMap<Project, Boolean>,
+    leaderProjects: List<ProjectResponse>,
     contentPadding: PaddingValues = PaddingValues()
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
@@ -51,50 +53,44 @@ fun ChooseProjectScreen(
                         Box(modifier = Modifier.fillMaxSize()) {
                             Text(
                                 text = "Сейчас у вас нет собственных активных проектов",
-                                modifier = Modifier.align(Alignment.Center).padding(10.dp),
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(10.dp),
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
                 }
-                items(leaderProjects.toList()) { project ->
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            text = "Сейчас у вас нет собственных активных проектов",
-                            modifier = Modifier.align(Alignment.Center).padding(10.dp),
-                            textAlign = TextAlign.Center
-                        )
-                        if (project.second)
-                            ProjectCard(
-                                name = project.first.name,
-                                projectId = project.first.id,
-                                onClickProject = onClickProject,
-                                isActive = true,
-                                isLeader = true
-                            )
-                    }
+                items(leaderProjects) { project ->
+                    ProjectCard(
+                        name = project.name,
+                        projectId = project.projectId,
+                        onClickProject = onClickProject,
+                        isActive = true,
+                        isLeader = true
+                    )
                 }
             }
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                ExtendedFloatingActionButton(
-                    text = {
-                        Text(
-                            text = "Создать проект",
-                            style = MaterialTheme.typography.button
-                        )
-                    },
-                    onClick = { onCreateProject() },
-                    backgroundColor = Color(0xFF9378FF),
-                    modifier = Modifier
-                        .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())
-                        .height(54.dp)
-                        .width(263.dp),
-                )
-            }
+        }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            ExtendedFloatingActionButton(
+                text = {
+                    Text(
+                        text = "Создать проект",
+                        style = MaterialTheme.typography.button
+                    )
+                },
+                onClick = { onCreateProject() },
+                backgroundColor = Color(0xFF9378FF),
+                modifier = Modifier
+                    .padding(bottom = 15.dp + contentPadding.calculateBottomPadding())
+                    .height(54.dp)
+                    .width(263.dp),
+            )
         }
     }
 }

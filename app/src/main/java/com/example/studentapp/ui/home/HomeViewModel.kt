@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 class HomeViewModel() : ViewModel() {
-    // технология называется backing property (редачить можем только из этого класса)
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
 

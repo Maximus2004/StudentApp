@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.studentapp.R
-import com.example.studentapp.data.photos
 import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 import androidx.compose.material.*
@@ -33,9 +32,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.studentapp.data.User
-import com.example.studentapp.data.users
-import com.example.studentapp.ui.StarRatingInfo
+import com.example.studentapp.data.UserResponse
 import com.example.studentapp.ui.navigation.NavigationDestination
 
 object ProfileScreen : NavigationDestination {
@@ -44,14 +41,9 @@ object ProfileScreen : NavigationDestination {
 
 @Composable
 fun ProfileScreen(
-    isAlienProfile: Boolean,
-    onClickShowProjects: () -> Unit,
     onClickCreateTeam: () -> Unit,
-    user: User,
-    textLastProject: String,
+    user: UserResponse,
     contentPadding: PaddingValues = PaddingValues(),
-    numberOfProjects: Int,
-    rating: Int,
     onClickLogout: () -> Unit
 ) {
     Box() {
@@ -84,7 +76,6 @@ fun ProfileScreen(
                     UserCard(
                         name = user.name + " " + user.surname,
                         modifier = Modifier.padding(vertical = 25.dp),
-                        avatar = user.avatar
                     )
                     Text(text = "Описание", style = MaterialTheme.typography.h5)
                     Text(
@@ -97,19 +88,7 @@ fun ProfileScreen(
                         ),
                         modifier = Modifier.padding(top = 12.dp)
                     )
-                    InfoCard(
-                        modifier = Modifier.padding(top = 19.dp),
-                        onClickShowProjects = onClickShowProjects,
-                        numberOfProjects = numberOfProjects,
-                        textLastProject = textLastProject,
-                        isAlienProfile = isAlienProfile,
-                        rating = rating
-                    )
-                    Text(text = "Портфолио", style = MaterialTheme.typography.h5)
                 }
-            }
-            items(user.portfolio) { photo ->
-                PhotoItem(photo, modifier = Modifier.aspectRatio(1.5f))
             }
         }
         Column(
@@ -203,14 +182,6 @@ fun InfoCard(
                 .weight(0.38f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Средняя оценка",
-                style = MaterialTheme.typography.h6,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 4.dp)
-            )
-            StarRatingInfo(rating = rating)
             if (isAlienProfile) {
                 Button(
                     onClick = { onClickShowProjects() },
@@ -240,37 +211,8 @@ fun InfoCard(
 }
 
 @Composable
-fun UserCard(modifier: Modifier = Modifier, name: String, avatar: String) {
+fun UserCard(modifier: Modifier = Modifier, name: String) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(Uri.parse(avatar))
-                .crossfade(true)
-                .build(),
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(end = 10.dp)
-                .size(64.dp)
-                .clip(CircleShape)
-        )
         Text(text = name, style = MaterialTheme.typography.h3)
-    }
-}
-
-@Composable
-@Preview(showBackground = true, showSystemUi = false)
-fun ProfileScreenPreview() {
-    StudentAppTheme {
-        ProfileScreen(
-            onClickShowProjects = {},
-            onClickCreateTeam = {},
-            user = users[0],
-            textLastProject = "Android-приложение для организаци",
-            isAlienProfile = false,
-            numberOfProjects = 0,
-            rating = 0,
-            onClickLogout = {}
-        )
     }
 }

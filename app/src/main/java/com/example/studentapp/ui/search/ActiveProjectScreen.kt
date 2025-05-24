@@ -10,9 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.studentapp.data.Project
-import com.example.studentapp.data.User
-import com.example.studentapp.ui.MemberCard
+import com.example.studentapp.data.ProjectResponse
 import com.example.studentapp.ui.TopBar
 import com.example.studentapp.ui.navigation.NavigationDestination
 
@@ -26,44 +24,34 @@ object ActiveProjectScreen : NavigationDestination {
 fun ActiveProjectScreen(
     contentPadding: PaddingValues = PaddingValues(),
     onNavigateBack: () -> Unit,
-    project: Project,
-    users: List<User>,
-    onClickProfile: (String) -> Unit
+    project: ProjectResponse?,
 ) {
     Scaffold(topBar = { TopBar(onNavigateBack = { onNavigateBack() }) }) {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = contentPadding) {
             item {
-                Text(
-                    text = "Опубликовано 17.5.2023",
-                    style = MaterialTheme.typography.subtitle2,
-                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
-                )
-                Text(
-                    text = project.name,
-                    style = MaterialTheme.typography.h3,
-                    modifier = Modifier.padding(start = 25.dp, top = 4.dp, end = 24.dp)
-                )
-                Text(
-                    text = project.description,
-                    style = MaterialTheme.typography.h4,
-                    modifier = Modifier.padding(
-                        start = 24.dp,
-                        top = 16.dp,
-                        end = 24.dp,
-                        bottom = 16.dp
-                    ),
-                    lineHeight = 27.sp
-                )
-            }
-            item {
-                if (project.members.toList().isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+                if (project != null) {
+                    Text(
+                        text = "Опубликовано 17.5.2023",
+                        style = MaterialTheme.typography.subtitle2,
+                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
+                    )
+                    Text(
+                        text = project.name,
+                        style = MaterialTheme.typography.h3,
+                        modifier = Modifier.padding(start = 25.dp, top = 4.dp, end = 24.dp)
+                    )
+                    Text(
+                        text = project.description,
+                        style = MaterialTheme.typography.h4,
+                        modifier = Modifier.padding(
+                            start = 24.dp,
+                            top = 16.dp,
+                            end = 24.dp,
+                            bottom = 16.dp
+                        ),
+                        lineHeight = 27.sp
+                    )
                 }
-            }
-            itemsIndexed(project.members.toList()) { index, member ->
-                MemberCard(member = member, onProfileClick = { onClickProfile(member.first) }, user = if (index < users.size) users[index] else User())
             }
         }
     }

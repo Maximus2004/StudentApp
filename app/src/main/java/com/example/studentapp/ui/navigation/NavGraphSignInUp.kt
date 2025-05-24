@@ -12,32 +12,17 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
-import com.example.studentapp.data.ImageDownloadStatus
 import com.example.studentapp.ui.signinup.*
 
 @Composable
 fun NavGraphSignInUp(
     isKeyboardOpen: Boolean,
-    onClickFinishButton: () -> Unit,
+    onClickFinishButton: (String) -> Unit,
     signInUpViewModel: SignInUpViewModel = viewModel(factory = ViewModelProvider.Factory)
 ) {
     val signInUpUiState = signInUpViewModel.uiState.collectAsState().value
     val navController = rememberNavController()
     val context = LocalContext.current
-    val avatar = signInUpViewModel.avatarState.collectAsState().value
-    val portfolio = signInUpViewModel.portfolioState.collectAsState().value
-    val launcherPortfolio = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri> ->
-        signInUpViewModel.setProfilePhotos(uris, context)
-    }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-    ) { uri: Uri? ->
-        if (uri != null) {
-            signInUpViewModel.uploadImageToFirebaseStorage(uri)
-        }
-    }
 
     NavHost(
         navController = navController,
@@ -66,11 +51,10 @@ fun NavGraphSignInUp(
                 isKeyboardOpen = isKeyboardOpen,
                 onClickAuthButton = { navController.navigate(LoginScreen.route) },
                 onClickRegisterButton = {
-                    if (avatar != Response.Loading && portfolio != ImageDownloadStatus.Loading)
-                        signInUpViewModel.onClickRegisterButton(
-                            context,
-                            onClickFinishButton
-                        )
+                    signInUpViewModel.onClickRegisterButton(
+                        context,
+                        onClickFinishButton
+                    )
                 },
                 onDescriptionChanged = { signInUpViewModel.onDescriptionChanged(it) },
                 onNameChanged = { signInUpViewModel.onNameChanged(it) },
@@ -87,10 +71,6 @@ fun NavGraphSignInUp(
                 isDescriptionError = signInUpUiState.descriptionError,
                 isEmailError = signInUpUiState.emailError,
                 isPasswordError = signInUpUiState.passwordError,
-                onClickUploadAvatar = { if (avatar != Response.Loading) launcher.launch("image/*") },
-                avatar = avatar,
-                portfolio = portfolio,
-                onClickUploadPortfolio = { if (portfolio != ImageDownloadStatus.Loading) launcherPortfolio.launch("image/*") },
             )
         }
         composable(route = LogoScreen.route) {

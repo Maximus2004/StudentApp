@@ -1,4 +1,4 @@
-package com.example.studentapp.ui
+package com.example.studentapp.ui.search
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
@@ -12,17 +12,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.studentapp.data.PageType
-import com.example.studentapp.data.navigationItemContentList
+import com.example.studentapp.ui.TopBar
 import com.example.studentapp.ui.navigation.NavigationDestination
-import com.example.studentapp.ui.search.DetailTeammateScreen
-import com.example.studentapp.ui.theme.Red
 import com.example.studentapp.ui.theme.StudentAppTheme
 
 object ReplyScreen : NavigationDestination {

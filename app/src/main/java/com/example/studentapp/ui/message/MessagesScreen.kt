@@ -13,6 +13,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,15 +27,20 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.studentapp.R
-import com.example.studentapp.data.User
+import com.example.studentapp.data.ConnectResponse
 import com.example.studentapp.ui.theme.StudentAppTheme
 
 @Composable
 fun MessagesScreen(
     contentPadding: PaddingValues = PaddingValues(),
+    updateMessagesList: () -> Unit,
     onDialogClick: (String) -> Unit,
-    messageList: List<User>
+    messageList: List<ConnectResponse>
 ) {
+    LaunchedEffect(Unit) {
+        updateMessagesList()
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = contentPadding,
@@ -62,30 +68,18 @@ fun MessagesScreen(
 }
 
 @Composable
-fun MessageCard(onMessageClick: (String) -> Unit, message: User, index: Int) {
+fun MessageCard(onMessageClick: (String) -> Unit, message: ConnectResponse, index: Int) {
     val color: Color = if (index % 2 == 0) Color(0xFFFFFFFF) else Color(0xFFFAF9FE)
     Row(
         modifier = Modifier
             .background(color)
             .fillMaxWidth()
             .height(103.dp)
-            .clickable { onMessageClick(message.id) },
+            .clickable { onMessageClick(message.connectId) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(Uri.parse(message.avatar))
-                .crossfade(true)
-                .build(),
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(55.dp)
-                .clip(CircleShape)
-        )
-        Column() {
-            Text(text = message.name, style = MaterialTheme.typography.h5)
+        Column(Modifier.padding(start = 24.dp)) {
+            Text(text = message.login, style = MaterialTheme.typography.h5)
             Text(text = "Посмотреть сообщения", style = MaterialTheme.typography.subtitle2)
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -94,13 +88,5 @@ fun MessageCard(onMessageClick: (String) -> Unit, message: User, index: Int) {
             contentDescription = null,
             modifier = Modifier.padding(end = 24.dp)
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MessagesScreenPreview() {
-    StudentAppTheme {
-        MessagesScreen(onDialogClick = {}, messageList = listOf())
     }
 }

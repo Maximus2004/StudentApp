@@ -3,8 +3,8 @@ package com.example.studentapp.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studentapp.data.AuthRepository
-import com.example.studentapp.data.User
 import com.example.studentapp.data.UserPreferencesRepository
+import com.example.studentapp.data.UserResponse
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -17,18 +17,18 @@ class StudentViewModel(
             .map { isUserRegistered ->
                 UserUiState(isUserRegistered)
             }
-            // переводим Flow в StateFlow
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = UserUiState()
             )
-    val userState: StateFlow<User> =
-        uiState.map { isUserRegistered -> userAuthRepository.getUserById(isUserRegistered.isUserRegistered) }
+    val userState: StateFlow<UserResponse> =
+        uiState
+            .map { isUserRegistered -> userAuthRepository.getUserById(isUserRegistered.isUserRegistered) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = User()
+                initialValue = UserResponse()
             )
 
 

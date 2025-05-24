@@ -1,11 +1,10 @@
 package com.example.studentapp.ui.message
 
-import com.example.studentapp.data.Message
-import com.example.studentapp.data.User
+import com.example.studentapp.data.ConnectResponse
 
 data class MessageUiState(
     val isShowingHomepage: Boolean = true,
-    val currentChats: HashMap<User, HashMap<String, String>> = hashMapOf(),
-    val currentUserId: String = "",
-    val currentUser: User = User()
+    val currentConnect: ConnectResponse? = null
 )
+
+data class MessageListState(val messages: List<ConnectResponse> = listOf())

@@ -1,12 +1,15 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'com.google.devtools.ksp' version "1.7.21-1.0.8"
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.10'
+    id 'com.google.devtools.ksp' version "2.1.21-2.0.1"
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.1.21'
     id 'com.google.gms.google-services'
 }
 
 android {
-    compileSdk 33
+    namespace 'com.example.studentapp'
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.studentapp"
@@ -27,73 +30,83 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
     buildFeatures {
         compose true
     }
-    // важная характеристика, которая должна совпадать с compose_ui_version
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.3.0'
-    }
+
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-    namespace 'com.example.studentapp'
+}
+
+// Версии библиотек
+ext {
+    compose_version = '1.5.4'
+    nav_version = "2.7.7"
+    material3_version = '1.1.2'
 }
 
 dependencies {
-    // must have во всех проектах
-    implementation 'androidx.activity:activity-compose:1.6.1'
-    implementation "androidx.compose.material:material:$compose_material_version"
-    implementation "androidx.compose.ui:ui:$compose_ui_version"
-    implementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
-    implementation 'com.google.firebase:firebase-storage-ktx:20.2.0'
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.0"
-    androidTestImplementation "androidx.test.ext:junit:1.1.4"
-    implementation 'io.coil-kt:coil-compose:2.1.0'
-    implementation 'io.coil-kt:coil:2.1.0'
+    // Compose UI
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.activity:activity-compose:1.8.2"
 
-    // отвечает за цвет system bar
-    implementation "com.google.accompanist:accompanist-systemuicontroller:0.21.5-rc"
-
-    // блок, отвечающий за навигацию
-    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-
-    // ответчает за NavigationBar и NavigationItem (единственный элемент дизайна material3)
+    // Material 3
     implementation "androidx.compose.material3:material3:$material3_version"
 
-    // отвечает за HorizontalPager
-    implementation "com.google.accompanist:accompanist-pager:0.23.1"
+    // Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2"
 
-    // отвечает за иконки
-    implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
+    // Core
+    implementation 'androidx.core:core-ktx:1.12.0'
 
-    // отвечает за преференсы
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    // Navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
+    implementation "androidx.navigation:navigation-compose:$nav_version"
 
-    // отвечает за firebase
-    implementation platform('com.google.firebase:firebase-bom:32.0.0')
-    // целый вечер мучался с этим "внедрением", в итоге оказалось, что нужно при помощи classpath изменить language version и подобрать под него compose version
-    implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.google.firebase:firebase-firestore-ktx'
+    // Coil (загрузка изображений)
+    implementation 'io.coil-kt:coil-compose:2.5.0'
 
-    // за даты и их преобразование
-    implementation 'org.threeten:threetenbp:1.4.0'
+    // DataStore
+    implementation 'androidx.datastore:datastore-preferences:1.1.0'
+
+    // Accompanist
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.31.5-beta"
+    implementation "com.google.accompanist:accompanist-pager:0.31.5-beta"
+
+    // Serialization + Ktor
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-android:2.3.7")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+
+    // Дата-время
+    implementation 'org.threeten:threetenbp:1.4.0:no-tzdb'
+    implementation 'androidx.room:room-runtime-android:2.7.1'
+
+    // Тесты
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
 }

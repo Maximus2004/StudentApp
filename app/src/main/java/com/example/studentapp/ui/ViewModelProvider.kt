@@ -24,26 +24,20 @@ object ViewModelProvider {
         }
         initializer {
             MessageViewModel(
-                studentApplication().container.messageRepository,
-                studentApplication().container.userAuthRepository,
-                studentApplication().container.projectItemsRepository,
-                studentApplication().container.teamItemsRepository
+                studentApplication().container.connectRepository,
             )
         }
         initializer {
             ProfileViewModel(
                 studentApplication().container.projectItemsRepository,
-                studentApplication().container.teamItemsRepository,
-                studentApplication().container.userAuthRepository,
-                studentApplication().container.feedbackItemsRepository
+                studentApplication().container.jobRepository,
             )
         }
         initializer {
             SearchViewModel(
-                studentApplication().container.teamItemsRepository,
+                studentApplication().container.jobRepository,
                 studentApplication().container.projectItemsRepository,
-                studentApplication().container.userAuthRepository,
-                studentApplication().container.messageRepository
+                studentApplication().container.connectRepository,
             )
         }
         initializer {

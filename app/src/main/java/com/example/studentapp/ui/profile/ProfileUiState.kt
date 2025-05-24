@@ -1,8 +1,6 @@
 package com.example.studentapp.ui.profile
 
-import com.example.studentapp.data.Feedback
-import com.example.studentapp.data.Project
-import com.example.studentapp.data.User
+import com.example.studentapp.data.ProjectResponse
 
 data class ProfileUiState(
     val projectName: String = "",
@@ -10,16 +8,8 @@ data class ProfileUiState(
     val teamName: String = "",
     val teamDescription: String = "",
     val tags: List<String> = listOf(),
-    val currentProject: Project = Project(),
-    val currentUsers: List<User> = listOf(),
-    val currentUserDetail: User = User(),
-    val currentLastProjectName: String = "",
-    val currentUserLeaderProjects: HashMap<Project, Boolean> = hashMapOf(),
-    val currentUserLeaderProjectIds: HashMap<String, Boolean> = hashMapOf(),
-    val currentUserSubordinateProjects: HashMap<Project, Boolean> = hashMapOf(),
-    val currentUserSubordinateProjectIds: HashMap<String, Boolean> = hashMapOf(),
-    val projectPhotos: List<String> = listOf(),
-    val feedbackList: MutableList<String> = mutableListOf(),
-    val ratingList: MutableList<Int> = mutableListOf(),
-    val currentFeedback: Feedback = Feedback()
+)
+
+data class UserProjectsUiState(
+    val projects: List<ProjectResponse> = listOf()
 )

@@ -1,93 +1,59 @@
 package com.example.studentapp.data
 
-import android.util.Log
-import com.example.studentapp.ui.home.TAG
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-
-const val PROJECTS_COLLECTION_REF = "projects"
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 interface ItemsRepository {
-    suspend fun getProjectList(projectIds: HashMap<String, Boolean>): HashMap<Project, Boolean>
-    suspend fun getProjectById(projectId: String): Project
-    fun addProject(
-        userId: String,
+    suspend fun getProjectList(login: String, onComplete: (List<ProjectResponse>?) -> Unit)
+    suspend fun createProject(
+        login: String,
         name: String,
         description: String,
-        isActive: Boolean,
-        members: HashMap<String, Boolean>,
-        onComplete: (Boolean, String) -> Unit
     )
-    fun addMemberInProject(projectId: String, userId: String)
-    suspend fun endProject(projectId: String, photos: List<String>)
-    suspend fun getSubordinateUserList(projectId: String): List<String>
+    suspend fun getProjectById(projectId: String, onComplete: (ProjectResponse?) -> Unit)
 }
 
 class ProjectItemsRepository : ItemsRepository {
-    companion object{
-        val projectsRef: CollectionReference = Firebase.firestore.collection(PROJECTS_COLLECTION_REF)
-    }
-
-    override suspend fun getProjectList(projectIds: HashMap<String, Boolean>): HashMap<Project, Boolean> {
-        val leaderList: HashMap<Project, Boolean> = hashMapOf()
-        for (a in projectIds) {
-            leaderList[getProjectById(a.key)] = a.value
+    override suspend fun getProjectList(login: String, onComplete: (List<ProjectResponse>?) -> Unit) {
+        runCatching {
+            ktorClient.get("http://10.0.2.2:8080/user/$login/projects") {
+                contentType(ContentType.Application.Json)
+            }.body<List<ProjectResponse>>()
         }
-        return leaderList
+        .onSuccess { response ->
+            onComplete(response)
+        }
+        .onFailure { _ ->
+            onComplete(null)
+        }
     }
 
-    override fun addProject(
-        userId: String,
+    override suspend fun createProject(
+        login: String,
         name: String,
         description: String,
-        isActive: Boolean,
-        members: HashMap<String, Boolean>,
-        onComplete: (Boolean, String) -> Unit
     ) {
-        val documentId = projectsRef.document().id
-        val project = Project(
-            id = documentId,
-            name = name,
-            description = description,
-            members = members
-        )
-        projectsRef
-            .document(documentId)
-            .set(project)
-            .addOnCompleteListener { result ->
-                onComplete(result.isSuccessful, documentId)
-            }
-    }
-
-    override fun addMemberInProject(projectId: String, userId: String) {
-        projectsRef.document(projectId).get().addOnSuccessListener {
-            val newMembers = it?.toObject(Project::class.java)?.members
-            newMembers?.put(userId, false)
-            it.reference.update("members", newMembers)
+        ktorClient.post("http://10.0.2.2:8080/user/$login/project") {
+            contentType(ContentType.Application.Json)
+            setBody(ProjectRequest(name, description))
         }
     }
 
-    override suspend fun getSubordinateUserList(projectId: String): List<String> {
-        val snapshot = projectsRef.document(projectId).get().await()
-        val project = snapshot.toObject(Project::class.java) ?: Project()
-        val temp: MutableList<String> = mutableListOf()
-        for (user in project.members) {
-            if (!user.toPair().second) temp.add(user.toPair().first)
+    override suspend fun getProjectById(projectId: String, onComplete: (ProjectResponse?) -> Unit) {
+        runCatching {
+            ktorClient.get("http://10.0.2.2:8080/project/${projectId}") {
+                contentType(ContentType.Application.Json)
+            }.body<ProjectResponse>()
         }
-        return temp
-    }
-
-    override suspend fun endProject(projectId: String, photos: List<String>) {
-        projectsRef.document(projectId).update("photos", photos).await()
-    }
-
-    override suspend fun getProjectById(projectId: String): Project {
-        val snapshot = projectsRef.document(projectId).get().await()
-        return snapshot.toObject(Project::class.java) ?: Project()
+        .onSuccess { response ->
+            onComplete(response)
+        }
+        .onFailure { _ ->
+            onComplete(null)
+        }
     }
 }

@@ -5,5 +5,5 @@ import androidx.navigation.compose.rememberNavController
 import com.example.studentapp.data.PageType
 
 data class HomeUiState(
-    val currentPage: PageType = PageType.Search,
+    val currentPage: PageType = PageType.Profile,
 )

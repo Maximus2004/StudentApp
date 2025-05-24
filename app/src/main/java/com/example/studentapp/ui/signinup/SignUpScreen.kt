@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.studentapp.R
-import com.example.studentapp.data.ImageDownloadStatus
 import com.example.studentapp.ui.TextInput
 import com.example.studentapp.ui.navigation.NavigationDestination
 
@@ -53,10 +52,6 @@ fun SignUpScreen(
     isPasswordError: Boolean,
     isDescriptionError: Boolean,
     isEmailError: Boolean,
-    onClickUploadAvatar: () -> Unit,
-    avatar: Response,
-    onClickUploadPortfolio: () -> Unit,
-    portfolio: ImageDownloadStatus
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -93,63 +88,6 @@ fun SignUpScreen(
                         modifier = Modifier.padding(top = 32.dp),
                         style = MaterialTheme.typography.h2
                     )
-                    when (avatar) {
-                        is Response.Default -> Image(
-                            painter = painterResource(id = R.drawable.unknown_avatar),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(top = 22.dp)
-                                .size(100.dp)
-                                .clip(CircleShape)
-                                .clickable { onClickUploadAvatar() }
-                        )
-                        is Response.Loading -> CircularProgressIndicator(
-                            modifier = Modifier.padding(
-                                top = 22.dp
-                            )
-                        )
-                        is Response.Success ->
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(avatar.avatarUri)
-                                    .crossfade(true)
-                                    .build(),
-                                contentScale = ContentScale.Crop,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(top = 22.dp)
-                                    .size(100.dp)
-                                    .clip(CircleShape)
-                                    .clickable { onClickUploadAvatar() }
-                            )
-                        is Response.Error -> Text(text = "Ваша фоточка слишком красивая для этого приложения")
-                    }
-                    Button(
-                        onClick = { onClickUploadPortfolio() },
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = MaterialTheme.colors.secondary,
-                            contentColor = MaterialTheme.colors.onSecondary
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 24.dp, end = 24.dp, top = 25.dp)
-                    ) {
-                        Row(modifier = Modifier.padding(vertical = 10.dp)) {
-                            Text(
-                                text = "Загрузите портфолио",
-                                style = MaterialTheme.typography.subtitle1
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Image(
-                                painter = painterResource(id = R.drawable.upload_icon),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(17.dp)
-                                    .padding(top = 4.dp)
-                            )
-                        }
-                    }
                     TextInput(
                         onDataChanged = { onNameChanged(it) },
                         currentValue = name,
@@ -211,21 +149,18 @@ fun SignUpScreen(
                     }
                 )
             }
-            Box(modifier = Modifier.padding(top = 20.dp, bottom = 93.dp).size(width = 263.dp, height = 54.dp)) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 20.dp, bottom = 93.dp)
+                    .size(width = 263.dp, height = 54.dp)
+            ) {
                 Button(
                     onClick = { onClickRegisterButton() },
                     modifier = Modifier.fillMaxSize(),
                     shape = RoundedCornerShape(30.dp)
                 ) {
-                    if (portfolio != ImageDownloadStatus.Loading) Text(text = "Зарегистрироваться")
+                    Text(text = "Зарегистрироваться")
                 }
-                if (portfolio == ImageDownloadStatus.Loading)
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .align(Alignment.Center),
-                        color = Color.White
-                    )
             }
         }
     }
