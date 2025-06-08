@@ -1,9 +1,7 @@
 package com.example.studentapp.ui.home
 
-import android.widget.Toast
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import com.example.studentapp.data.PageType
 import com.example.studentapp.data.navigationItemContentList
 import androidx.lifecycle.viewmodel.compose.viewModel

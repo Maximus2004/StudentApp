@@ -2,11 +2,8 @@ package com.example.studentapp.ui.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import com.example.studentapp.data.ConnectRepository
 import com.example.studentapp.data.ConnectResponse
 import com.example.studentapp.ui.message.ChattingScreen
-import com.example.studentapp.ui.message.MessageViewModel
 import com.example.studentapp.ui.message.MessagesScreen
 
 @Composable

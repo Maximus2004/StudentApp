@@ -5,8 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.studentapp.data.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class SearchViewModel(
     private val jobRepository: JobRepository,
@@ -18,13 +16,22 @@ class SearchViewModel(
     private val _jobsList: MutableStateFlow<Response> = MutableStateFlow(Response.Loading)
     val jobsList: StateFlow<Response> = _jobsList.asStateFlow()
 
-    init {
-        setJobs()
-    }
-
-    private fun setJobs() {
+    fun updateJobList() {
         viewModelScope.launch {
             jobRepository.getJobs { jobs ->
+                _jobsList.value =
+                    if (jobs != null)
+                        Response.Success(teamsList = jobs)
+                    else
+                        Response.Error("Ошибка")
+            }
+        }
+    }
+
+    fun onSearchTextChanged(searchText: String) {
+        _uiState.update { it.copy(searchText = searchText) }
+        viewModelScope.launch {
+            jobRepository.searchJobs(searchText) { jobs ->
                 _jobsList.value =
                     if (jobs != null)
                         Response.Success(teamsList = jobs)

@@ -24,7 +24,6 @@ fun NavGraphSearch(
     searchViewModel: SearchViewModel = viewModel(factory = ViewModelProvider.Factory),
 ) {
     val searchUiState: SearchUiState = searchViewModel.uiState.collectAsState().value
-    var searchText: String by remember { mutableStateOf("") }
     val jobsState: Response = searchViewModel.jobsList.collectAsState().value
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -34,6 +33,10 @@ fun NavGraphSearch(
         modifier = Modifier.fillMaxSize()
     ) {
         composable(route = SearchScreen.route) {
+            LaunchedEffect(Unit) {
+                searchViewModel.updateJobList()
+            }
+
             Box(modifier = Modifier.fillMaxSize()) {
                 when (jobsState) {
                     is Response.Loading -> CircularProgressIndicator(
@@ -50,6 +53,8 @@ fun NavGraphSearch(
                         },
                         contentPadding = contentPadding,
                         jobs = jobsState.teamsList,
+                        onSearchChanged = searchViewModel::onSearchTextChanged,
+                        searchText = searchUiState.searchText
                     )
                 }
             }

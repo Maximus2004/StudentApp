@@ -4,9 +4,11 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.studentapp.data.*
+import com.example.studentapp.data.AuthRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.*
 
 class SignInUpViewModel(private val userAuthRepository: AuthRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(SignInUpUiState())
